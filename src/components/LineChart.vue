@@ -1,0 +1,65 @@
+<template>
+    <div>{{ chartInterval }} RSI chart</div>
+    <div ref="lineChart" class="p-4"></div>
+</template>
+
+<script>
+import * as Plot from '@observablehq/plot';
+// import ticker from '@/assets/json/ticker.json';
+// import rsiData from '@/assets/json/rsiData.json'
+import * as d3 from "d3";
+import { mapGetters } from 'vuex';
+// import { scale } from '@observablehq/plot';
+// import Aapl from '@/assets/csv/Aapl.csv'
+
+export default {
+    name: "LineChart",
+    props: ["rsiData", "chartInterval"],
+    // data() {
+    //     return {
+    //         data: this.rsiData['values']
+    //     }
+    // },
+    computed: {
+        ...mapGetters(['symbol'])
+    },
+    mounted() {
+        const lineChartPlaceholder = this.$refs.lineChart;
+        // const parsedTicker = ticker.map(d => ({
+        //     ...d,
+        //     date: new Date(d.date)
+        // }));
+
+        const data = this.rsiData['values'];
+
+
+        const LinePlot = Plot.plot({
+            inset: 6,
+            width: 1024,
+            grid: true,
+            x: {
+                type: "time", // Explicitly set the x-axis type to 'time'
+                label: "Date",
+                grid: false
+            },
+            y: {
+                label: `↑ ${this.symbol} price (₹)`,
+                domain: [0, 100], // Set the domain to cover the range you want (0 to 100)
+                tickFormat: d => d.toFixed(0), // Format ticks to show integers only
+                ticks: d3.range(0, 101, 10), // Set tick intervals at 20 (0, 20, 40, 60, 80, 100)
+            },
+            marks: [
+                Plot.rectY([{}], { y1: 40, y2: 60, fill: "#FFCBCB", opacity: 0.5 }),
+                Plot.ruleY([40, 60], { stroke: "#FFCBCB", opacity: 1, strokeWidth: 1 }), // Highlight the 40-60 range
+                Plot.ruleY([0]), // Add a horizontal line at y = 0
+                Plot.line(data, { x: "datetime", y: d => +d.rsi }), // Convert RSI values to numbers
+                Plot.crosshairX(data, {x: "datetime", y: d => +d.rsi}),
+                Plot.dot(data, Plot.pointerX({x: "datetime", y: d => +d.rsi, stroke: "red"})),
+                Plot.text(data, Plot.pointerX({px: "datetime", py: d => +d.rsi, frameAnchor: "top-right", fontVariant: "tabular-nums", text: (d) => [`Date: ${(d.datetime)}`, `RSI: ${(+d.rsi).toFixed(2)}`].join("   "), fontWeight: "bold", fontSize: 16}), )
+            ]
+        });
+
+        lineChartPlaceholder.appendChild(LinePlot);
+    }
+}
+</script>
