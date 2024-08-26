@@ -1,6 +1,9 @@
 <template>
-    <div>Candle stick chart</div>
+    <div class="mt-4"> 
+        <div>Candle stick chart</div>
     <div ref="candleStick" class="candlestick mt-5"></div>
+    </div>
+    
 </template>
 
 <script>
@@ -30,7 +33,7 @@ export default {
         const candlestickPlot = Plot.plot({
             inset: 6,
             grid: false,
-            width: 1024,
+            width: candleStickPlaceholder.offsetWidth,
             x: {
                 type: "time",
                 // domain: d3.extent(data, d => d.datetime), // Set x-axis domain based on dates

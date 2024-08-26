@@ -148,7 +148,7 @@ input {
 }
 
 .candle-chart-svg {
-    width: 33%;
+    width: 23%;
     position: absolute;
     right: 8%;
     bottom: 5%;
@@ -172,8 +172,8 @@ input {
 .chart2-svg {
     width: 10%;
     position: absolute;
-    bottom: 15%;
-    right: 40%;
+    bottom: 10%;
+    right: 30%;
     z-index: -1;
 }
 
