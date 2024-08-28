@@ -1,29 +1,45 @@
 <template>
     <div class="container">
-        <div v-if="stockInfo.error">
-                Oops...something went wrong!!
-            </div>
+        <div v-if="stockInfo.error || companyDetails.error">
+            Oops...something went wrong!!
+        </div>
         <div class="symbol-desc" v-else>
             <div class="title">{{ stockInfo[0].name }}</div>
             <div class="symbol">{{ stockInfo[0].symbol }}</div>
             <div class="symbol">{{ stockInfo[0].country }}</div>
             <div class="symbol">{{ stockInfo[0].exchange }}</div>
+            <div class="symbol">{{ companyDetails.description }}</div>
+            <div class="symbol">{{ companyDetails.industry }}</div>
+            <div class="symbol" v-for="peer of companyDetails.peers" :key="peer">{{ peer }}</div>
+            <a :href="companyDetails.site_url" class="symbol">Visit Site</a>
+        </div>
+
+        <div class="chart-options d-flex justify-content-center align-items-center gap-4">
+            <div class="option" :class="{'active': activeTimeSeriesChart == 'Candlestick'}" @click="toggleChartView">Candlestick</div>
+            <div class="option" :class="{'active': activeTimeSeriesChart == 'Line'}" @click="toggleChartView">Line</div>
+        </div>
+        <div v-if="timeSeries && activeTimeSeriesChart == 'Candlestick'" class="w-100">
+                <CandleStick :timeSeriesData="timeSeries" />
+            </div>
+            <div v-if="timeSeries && activeTimeSeriesChart== 'Line'" class="w-100">
+                <StockLineChart :timeSeriesData="timeSeries" />
+            </div>
+
+
+
+        <div class="d-flex justify-content-between align-items-center gap-3">
+            <div v-if="dailyRsiData" class="w-100">
+                <LineChart :rsiData="dailyRsiData" :chartInterval="'Daily'" />
+            </div>
+            <div v-if="weeklyRsiData" class="w-100">
+                <LineChart :rsiData="weeklyRsiData" :chartInterval="'weekly'" />
+            </div>
+            <div v-if="monthlyRsiData" class="w-100">
+                <LineChart :rsiData="monthlyRsiData" :chartInterval="'monthly'" />
+            </div>
         </div>
 
 
-        <div v-if="timeSeries">
-            <CandleStick :timeSeriesData="timeSeries" />
-        </div>
-
-        <div v-if="dailyRsiData">
-            <LineChart :rsiData="dailyRsiData" :chartInterval="'Daily'" />
-        </div>
-        <div v-if="weeklyRsiData">
-            <LineChart :rsiData="weeklyRsiData" :chartInterval="'weekly'" />
-        </div>
-        <div v-if="monthlyRsiData">
-            <LineChart :rsiData="monthlyRsiData" :chartInterval="'monthly'" />
-        </div>
     </div>
 
 </template>
@@ -32,20 +48,31 @@
 import { mapGetters } from 'vuex';
 import CandleStick from '@/components/CandleStick.vue';
 import LineChart from '@/components/LineChart.vue';
+import StockLineChart from '@/components/StockLineChart.vue';
 
 export default {
     name: "StockAnalysis",
-    // data() {
-    //     return {
-
-    //     }
-    // },
+    data() {
+        return {
+            activeTimeSeriesChart: 'Candlestick'
+        }
+    },
     components: {
         CandleStick,
-        LineChart
+        LineChart,
+        StockLineChart
     },
     computed: {
-        ...mapGetters(['stockInfo', 'symbol', 'timeSeries', 'dailyRsiData', 'weeklyRsiData', 'monthlyRsiData']),
+        ...mapGetters(['stockInfo', 'companyDetails', 'symbol', 'timeSeries', 'dailyRsiData', 'weeklyRsiData', 'monthlyRsiData']),
+    },
+    methods: {
+        toggleChartView() {
+            if(this.activeTimeSeriesChart == 'Candlestick') {
+                this.activeTimeSeriesChart = 'Line'
+            } else {
+                this.activeTimeSeriesChart = 'Candlestick'
+            }
+        }
     },
     mounted() {
         const query = this.symbol ? this.symbol : this.$route.query.symbol;
@@ -53,6 +80,7 @@ export default {
         if (query) {
             // this.symbol = query;
             // if(!this.timeSeries || this.timeSeries.error) {
+            this.$store.dispatch('FetchCompanyDetails', query);
             this.$store.dispatch('FetchTimeSeries', `${query}.BSE`);
             // }
             const payload = {
@@ -73,7 +101,6 @@ export default {
 </script>
 
 <style scoped lang="scss">
-
 .symbol-desc {
     width: 100%;
     padding: 20px;
@@ -81,6 +108,7 @@ export default {
     border-radius: 20px;
     box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;
     text-align: left;
+
     .title {
         font-size: 24px;
         font-weight: 600;
@@ -93,5 +121,18 @@ export default {
         color: #00BDAA;
 
     }
+}
+
+.chart-options {
+    padding: 10px;
+}
+
+.option {
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.active {
+    color: #00BDAA;
 }
 </style>

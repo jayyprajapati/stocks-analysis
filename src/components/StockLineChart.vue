@@ -1,7 +1,7 @@
 <template>
-    <div class="my-4 candlestick-chart-wrapper p-3"> 
-        <div class="title">Candlestick chart</div>
-    <div ref="candleStick" class="candlestick mt-2"></div>
+    <div class="my-4 stock-line-chart-wrapper p-3"> 
+        <div class="title">Line Chart chart</div>
+    <div ref="stockLineChart" class="linechart mt-2"></div>
     </div>
     
 </template>
@@ -13,7 +13,7 @@ import * as d3 from "d3";
 // import Aapl from '@/assets/csv/Aapl.csv'
 
 export default {
-    name: "CandleStick",
+    name: "StockLineChart",
     props: ["timeSeriesData"],
     // data() {
     //     return {
@@ -21,7 +21,7 @@ export default {
     //     }
     // },
     mounted() {
-        const candleStickPlaceholder = this.$refs.candleStick;
+        const stockLineChartPlaceholder = this.$refs.stockLineChart;
 
         // const AAPL =ticker.slice(-120);
         const data = this.timeSeriesData['values'];
@@ -30,10 +30,10 @@ export default {
         //     date: new Date(d.date)
         // }));
 
-        const candlestickPlot = Plot.plot({
+        const linechartPlot = Plot.plot({
             inset: 6,
             grid: false,
-            width: candleStickPlaceholder.offsetWidth,
+            width: stockLineChartPlaceholder.offsetWidth,
             x: {
                 type: "time",
                 // domain: d3.extent(data, d => d.datetime), // Set x-axis domain based on dates
@@ -49,44 +49,28 @@ export default {
                 tickFormat: d => d.toFixed(0), // Ensure ticks are integers
                 grid: true
             },
-            color: {
-                range: ["red", "green"]
-            },
             marks: [
-                Plot.ruleX(data, {
-                    x: "datetime",
-                    y1: "low",
-                    y2: "high",
-                    // tip: true
-                }),
-                Plot.ruleX(data, {
-                    x: "datetime",
-                    y1: "open",
-                    y2: "close",
-                    stroke: (d) => Math.sign(d.close - d.open),
-                    strokeWidth: 4,
-                    // tip: true
-                    // strokeLinecap: "round"
-                }),
-                Plot.crosshairX(data, {x: "datetime", y: "open"}),
+                
+                Plot.line(data, {x: "datetime", y: "close"}),
+                Plot.crosshairX(data, {x: "datetime", y: "close"}),
                 Plot.text(data, Plot.pointerX({px: "datetime", py: "close", dy: -17, frameAnchor: "top-right", fontVariant: "tabular-nums", text: (d) => [`C: ${(+d.close).toFixed(2)}`, `O: ${(+d.open).toFixed(2)}`, `H: ${(+d.high).toFixed(2)}`, `L: ${(+d.low).toFixed(2)}`].join("   "), fontWeight: "bold", fontSize: 16}))
             ]
         })
 
-        candleStickPlaceholder.appendChild(candlestickPlot);
+        stockLineChartPlaceholder.appendChild(linechartPlot);
     }
 }
 </script>
 
-<style scoped lang="scss"> 
-.candlestick {
+<style scoped lang="scss">
+.linechart {
     width: 100%;
 }
 
-.candlestick-chart-wrapper {
-    background: #fff;
+.stock-line-chart-wrapper {
     box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
     border-radius: 20px;
+    background: #fff;
 
     .title {
         font-weight: 600;

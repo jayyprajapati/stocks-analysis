@@ -5,6 +5,7 @@ export default createStore({
   state: {
     stockList: null,
     symbol: null,
+    companyDetails: {},
     // stockInfo: null,
     rsiMin: 40,
     rsiMax: 60,
@@ -20,6 +21,9 @@ export default createStore({
       } else {
         return state.stockList['data']
       }
+    },
+    companyDetails(state) {
+      return state.companyDetails
     },
     symbol: (state) => {
       return state.symbol
@@ -54,6 +58,9 @@ export default createStore({
     MutateStocksList(state, payload) {
       state.stockList = payload
     },
+    MutateCompanyDetails(state, payload) {
+      state.companyDetails = payload;
+    },
     MutateRSIData(state, payload){
       if(payload.error) {
         state[payload.interval+ 'RsiData'] = payload
@@ -81,6 +88,17 @@ export default createStore({
         context.commit('MutateStocksList', data);
       } else {
         context.commit('MutateStocksList', {error: true});
+      }
+    },
+    async FetchCompanyDetails(context, payload) {
+      const companyDetailsEndpoint  = process.env.VUE_APP_API_URL + `/stocks/companyDetails?symbol=${payload}`;
+
+      const resp = await axios.get(companyDetailsEndpoint);
+      const data = resp.data;
+      if(resp.status === 200) {
+        context.commit('MutateCompanyDetails', data);
+      } else {
+        context.commit('MutateCompanyDetails', {error: true})
       }
     },
     async FetchTimeSeries(context, payload) {
