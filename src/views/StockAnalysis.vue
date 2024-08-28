@@ -1,8 +1,13 @@
 <template>
     <div class="container">
-        <div class="symbol-desc">
-            <div class="title">BHEL</div>
-            <div class="symbol">{{ symbol }}</div>
+        <div v-if="stockInfo.error">
+                Oops...something went wrong!!
+            </div>
+        <div class="symbol-desc" v-else>
+            <div class="title">{{ stockInfo[0].name }}</div>
+            <div class="symbol">{{ stockInfo[0].symbol }}</div>
+            <div class="symbol">{{ stockInfo[0].country }}</div>
+            <div class="symbol">{{ stockInfo[0].exchange }}</div>
         </div>
 
 
@@ -40,7 +45,7 @@ export default {
         LineChart
     },
     computed: {
-        ...mapGetters(['symbol', 'timeSeries', 'dailyRsiData', 'weeklyRsiData', 'monthlyRsiData'])
+        ...mapGetters(['stockInfo', 'symbol', 'timeSeries', 'dailyRsiData', 'weeklyRsiData', 'monthlyRsiData']),
     },
     mounted() {
         const query = this.symbol ? this.symbol : this.$route.query.symbol;

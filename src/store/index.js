@@ -3,7 +3,9 @@ import axios from 'axios'
 
 export default createStore({
   state: {
+    stockList: null,
     symbol: null,
+    // stockInfo: null,
     rsiMin: 40,
     rsiMax: 60,
     dailyRsiData: null,
@@ -12,8 +14,22 @@ export default createStore({
     timeSeries: null
   },
   getters: {
+    stockList: (state) => {
+      if(state.stockList.error){
+        return state.stockList
+      } else {
+        return state.stockList['data']
+      }
+    },
     symbol: (state) => {
       return state.symbol
+    },
+    stockInfo: (state) => {
+      if(state.symbol && !state.stockList.error) {
+        return state.stockList['data'].filter((x) => x.symbol == state.symbol)
+      } else {
+        return {error: true}
+      }
     },
     rsiMin: (state) => {
       return state.rsiMin
@@ -35,6 +51,9 @@ export default createStore({
     }
   },
   mutations: {
+    MutateStocksList(state, payload) {
+      state.stockList = payload
+    },
     MutateRSIData(state, payload){
       if(payload.error) {
         state[payload.interval+ 'RsiData'] = payload
@@ -51,6 +70,19 @@ export default createStore({
     }
   },
   actions: {
+    async FetchStocksList(context, payload) {
+      const stocksListEndpoint = `https://api.twelvedata.com/stocks?country=${payload.country}&exchange=${payload.exchange}`;
+
+      const resp = await axios.get(stocksListEndpoint);
+
+      const data = resp.data;
+
+      if(resp.status === 200) {
+        context.commit('MutateStocksList', data);
+      } else {
+        context.commit('MutateStocksList', {error: true});
+      }
+    },
     async FetchTimeSeries(context, payload) {
       const timeSeriesEndpoint = process.env.VUE_APP_API_URL + '/stocks/timeseries?symbol=' + payload ;
 

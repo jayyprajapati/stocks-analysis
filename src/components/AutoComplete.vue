@@ -10,7 +10,11 @@
         </div>
         
         <div class="search-list" v-if="searchQuery">
-            <div v-if="filteredList.length == 0" class="no-result-txt">No result found...</div>
+            <div v-if="stockList.error">
+                Oops...Something went wrong!
+            </div>
+            <div v-else>
+                <div v-if="filteredList.length == 0" class="no-result-txt">No result found...</div>
             <div v-else v-for="stock in filteredList" :key="stock.symbol" class="d-flex justify-content-between gap-5 stock-item" @click="searchItem(stock.symbol)">
                 <div>{{ stock.name }}</div>
                 <div class="d-flex gap-3 justify-content-center">
@@ -19,6 +23,8 @@
                 </div>
                 
             </div>
+            </div>
+            
         </div>
     </div>
 
@@ -33,26 +39,26 @@
 </template>
 
 <script>
-import axios from 'axios';
-import { mapMutations } from 'vuex';
+import { mapMutations, mapGetters } from 'vuex';
 export default {
     name: "AutoComplete",
     data() {
         return {
-            stockList: null,
+            // stockList: null,
             searchQuery: ''
         }
     },
-    async mounted() {
-        const stockListEndpoint = 'https://api.twelvedata.com/stocks?country=India&exchange=NSE';
-        const resp = await axios.get(stockListEndpoint);
-        if(resp.status === 200) {
-            this.stockList = resp.data["data"];
+    mounted() {
+        const payload = {
+            country: 'India',
+            exchange: 'BSE'
         }
+        this.$store.dispatch('FetchStocksList', payload)
     },
     computed: {
+        ...mapGetters(['stockList']),
         filteredList() {
-            if(!this.searchQuery) {
+            if(!this.searchQuery || this.stockList.error) {
                 return this.stockList
             } else {
                 const filteredData = this.stockList.filter((stock) => 
