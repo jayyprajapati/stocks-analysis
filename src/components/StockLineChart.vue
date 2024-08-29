@@ -51,7 +51,7 @@ export default {
             },
             marks: [
                 
-                Plot.line(data, {x: "datetime", y: "close"}),
+                Plot.line(data, {x: "datetime", y: "close",  strokeWidth:4 , stroke: '#06d6a0'}),
                 Plot.crosshairX(data, {x: "datetime", y: "close"}),
                 Plot.text(data, Plot.pointerX({px: "datetime", py: "close", dy: -17, frameAnchor: "top-right", fontVariant: "tabular-nums", text: (d) => [`C: ${(+d.close).toFixed(2)}`, `O: ${(+d.open).toFixed(2)}`, `H: ${(+d.high).toFixed(2)}`, `L: ${(+d.low).toFixed(2)}`].join("   "), fontWeight: "bold", fontSize: 16}))
             ]

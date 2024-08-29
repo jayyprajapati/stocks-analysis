@@ -39,7 +39,6 @@ export default {
         const LinePlot = Plot.plot({
             inset: 6,
             width: lineChartPlaceholder.offsetWidth,
-            height: 400,
             grid: true,
             x: {
                 type: "time", // Explicitly set the x-axis type to 'time'

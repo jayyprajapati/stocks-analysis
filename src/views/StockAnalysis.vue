@@ -3,15 +3,30 @@
         <div v-if="stockInfo.error || companyDetails.error">
             Oops...something went wrong!!
         </div>
-        <div class="symbol-desc" v-else>
-            <div class="title">{{ stockInfo[0].name }}</div>
+        <div class="company-details-wrapper" v-else>
+            <div class="company-title-wrapper">
+                <div class="d-flex justify-content-between align-items-center gap-3">
+                    <div class="title">{{ stockInfo[0].name }}</div>
+                    <i class="fa-solid fa-arrow-right visit-site-link"></i>
+                </div>
+                <div class="d-flex justify-content-start gap-1 align-items-center symbol">
+                    <div>{{ stockInfo[0].symbol }}</div> &#x2022;
+                    <div>{{ stockInfo[0].exchange }}</div> &#x2022;
+                    <div>{{ stockInfo[0].country }}</div>
+                </div>
+                <div class="industry mt-3">
+                    {{ companyDetails.industry }}
+                </div>
+                
+            </div>
+            <!-- <div class="title">{{ stockInfo[0].name }}</div>
             <div class="symbol">{{ stockInfo[0].symbol }}</div>
             <div class="symbol">{{ stockInfo[0].country }}</div>
             <div class="symbol">{{ stockInfo[0].exchange }}</div>
             <div class="symbol">{{ companyDetails.description }}</div>
             <div class="symbol">{{ companyDetails.industry }}</div>
             <div class="symbol" v-for="peer of companyDetails.peers" :key="peer">{{ peer }}</div>
-            <a :href="companyDetails.site_url" class="symbol">Visit Site</a>
+            <a :href="companyDetails.site_url" class="symbol">Visit Site</a> -->
         </div>
 
         <div class="chart-options d-flex justify-content-center align-items-center gap-4">
@@ -101,27 +116,65 @@ export default {
 </script>
 
 <style scoped lang="scss">
-.symbol-desc {
-    width: 100%;
-    padding: 20px;
-    background: #F5F7F8;
-    border-radius: 20px;
-    box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;
-    text-align: left;
 
+.company-title-wrapper {
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
+    padding: 20px;
+    width: fit-content;
+    text-align: left;
+    
     .title {
-        font-size: 24px;
-        font-weight: 600;
-        color: #0C359E;
+        font-size: 20px;
+        color: #26547c;
+        font-weight: 800;
     }
 
     .symbol {
         font-size: 14px;
-        font-weight: 500;
-        color: #00BDAA;
+        color: #a5a5a5;
+        font-weight: 600;
+    }
 
+    .industry {
+        padding: 10px;
+        border: 3px solid #a5a5a5;
+        border-radius: 100px;
     }
 }
+
+.visit-site-link {
+    color: #a5a5a5;
+    rotate: -45deg;
+    font-size: 24px;
+    cursor: pointer;
+
+    &:hover {
+        color: #ef476f;
+    }
+}
+// .company-details-wrapper {
+//     width: 100%;
+//     padding: 20px;
+//     background: #F5F7F8;
+//     border-radius: 20px;
+//     box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;
+//     text-align: left;
+
+//     .title {
+//         font-size: 24px;
+//         font-weight: 600;
+//         color: #0C359E;
+//     }
+
+//     .symbol {
+//         font-size: 14px;
+//         font-weight: 500;
+//         color: #00BDAA;
+
+//     }
+// }
 
 .chart-options {
     padding: 10px;
@@ -131,7 +184,10 @@ export default {
     font-size: 16px;
     cursor: pointer;
 }
-
+// ef476f
+// ffd166
+// 06d6a0
+// fffcf9
 .active {
     color: #00BDAA;
 }
