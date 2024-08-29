@@ -1,5 +1,5 @@
 <template>
-    <div class="my-4 candlestick-chart-wrapper p-3"> 
+    <div class="mb-4 mt-1 candlestick-chart-wrapper p-3"> 
         <div class="title">Candlestick chart</div>
     <div ref="candleStick" class="candlestick mt-2"></div>
     </div>
@@ -45,7 +45,7 @@ export default {
             y: {
                 domain: [d3.min(data, d => d.low) - 20, d3.max(data, d => d.high) + 40], // Start from 0 to max high + 20 for spacing
                 // ticks: d3.range(d3.min(data, d => d.low) - 20, d3.max(data, d => d.high) + 100, 10), // Ticks at every 20 units
-                label: "Price",
+                label: "Price (₹)",
                 tickFormat: d => d.toFixed(0), // Ensure ticks are integers
                 grid: true
             },
@@ -66,10 +66,10 @@ export default {
                     stroke: (d) => Math.sign(d.close - d.open),
                     strokeWidth: 4,
                     // tip: true
-                    // strokeLinecap: "round"
+                    strokeLinecap: "round"
                 }),
                 Plot.crosshairX(data, {x: "datetime", y: "open"}),
-                Plot.text(data, Plot.pointerX({px: "datetime", py: "close", dy: -17, frameAnchor: "top-right", fontVariant: "tabular-nums", text: (d) => [`C: ${(+d.close).toFixed(2)}`, `O: ${(+d.open).toFixed(2)}`, `H: ${(+d.high).toFixed(2)}`, `L: ${(+d.low).toFixed(2)}`].join("   "), fontWeight: "bold", fontSize: 16}))
+                Plot.text(data, Plot.pointerX({px: "datetime", py: "close", dy: -17, frameAnchor: "top-right", fontVariant: "tabular-nums", text: (d) => [`C: ${(+d.close).toFixed(2)}`, `O: ${(+d.open).toFixed(2)}`, `H: ${(+d.high).toFixed(2)}`, `L: ${(+d.low).toFixed(2)}`].join("   "), fontWeight: "bold", fontSize: 14, fill: '#5c667a'}))
             ]
         })
 
@@ -84,13 +84,13 @@ export default {
 }
 
 .candlestick-chart-wrapper {
-    background: #fff;
-    box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
-    border-radius: 20px;
 
     .title {
         font-weight: 600;
-        font-size: 24px;
+        font-size: 16px;
+        color: #315098;
+        margin-bottom: 20px;
+        // opacity: 0.8;
     }
 }
 </style>

@@ -112,6 +112,8 @@ export default createStore({
       }
     },
     async FetchRSIData(context, payload) {
+      console.log('Hitting API for RSI');
+      
       const RSIEndpoint = process.env.VUE_APP_API_URL + `/stocks/getRSIData?symbol=${payload.symbol}&timePeriod=${payload.timePeriod}&interval=${payload.interval}&seriesType=${payload.seriesType}`;
 
       const resp = await axios.get(RSIEndpoint);

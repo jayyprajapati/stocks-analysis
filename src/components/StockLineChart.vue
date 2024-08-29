@@ -1,5 +1,5 @@
 <template>
-    <div class="my-4 stock-line-chart-wrapper p-3"> 
+    <div class="mb-4 mt-1 stock-line-chart-wrapper p-3"> 
         <div class="title">Line Chart chart</div>
     <div ref="stockLineChart" class="linechart mt-2"></div>
     </div>
@@ -52,8 +52,9 @@ export default {
             marks: [
                 
                 Plot.line(data, {x: "datetime", y: "close",  strokeWidth:4 , stroke: '#06d6a0'}),
+                Plot.areaY(data, {x: "datetime", y2: d3.min(data, d => d.low) - 20, y1: "close",  fillOpacity:0.2 , fill: '#06d6a0'}),
                 Plot.crosshairX(data, {x: "datetime", y: "close"}),
-                Plot.text(data, Plot.pointerX({px: "datetime", py: "close", dy: -17, frameAnchor: "top-right", fontVariant: "tabular-nums", text: (d) => [`C: ${(+d.close).toFixed(2)}`, `O: ${(+d.open).toFixed(2)}`, `H: ${(+d.high).toFixed(2)}`, `L: ${(+d.low).toFixed(2)}`].join("   "), fontWeight: "bold", fontSize: 16}))
+                Plot.text(data, Plot.pointerX({px: "datetime", py: "close", dy: -17, frameAnchor: "top-right", fontVariant: "tabular-nums", text: (d) => [`C: ${(+d.close).toFixed(2)}`, `O: ${(+d.open).toFixed(2)}`, `H: ${(+d.high).toFixed(2)}`, `L: ${(+d.low).toFixed(2)}`].join("   "), fontWeight: "bold", fontSize: 14, fill: '#5c667a'}))
             ]
         })
 
@@ -68,13 +69,12 @@ export default {
 }
 
 .stock-line-chart-wrapper {
-    box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
-    border-radius: 20px;
-    background: #fff;
 
     .title {
         font-weight: 600;
-        font-size: 24px;
+        font-size: 20px;
+        color: #5c667a;
+        margin-bottom: 20px;
     }
 }
 </style>
