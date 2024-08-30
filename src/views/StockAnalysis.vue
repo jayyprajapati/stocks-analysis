@@ -4,7 +4,8 @@
             Oops...something went wrong!!
         </div>
         <div class="company-details-wrapper" v-else>
-            <div class="company-title-wrapper name">
+            <div class="d-flex justify-content-start gap-3 w-100">
+                <div class="company-title-wrapper name">
                 <div class="d-flex justify-content-between align-items-center gap-3">
                     <div class="title">{{ stockInfo[0].name }}</div>
                     <i class="fa-solid fa-arrow-right visit-site-link"></i>
@@ -20,6 +21,29 @@
                 </div>
 
             </div>
+
+            <div class="company-title-wrapper name">
+                <div class="d-flex justify-content-start align-items-center gap-3 success">
+                    <div class="title success">538.60</div>
+                    <i class="fa-solid fa-square-caret-up"></i>
+                    <!-- <i class="fa-solid fa-arrow-right visit-site-link"></i> -->
+                </div>
+                <div class="divider"></div>
+                <div class="d-flex justify-content-between gap-1 align-items-start symbol">
+                    <div>
+                        <div>Last updated on </div>
+                        <div class="mt-2">11:10AM, 30 Aug 2024</div>
+                    </div>
+                    
+                    <i class="fa-solid fa-arrows-rotate pointer cursor-pointer"></i>
+                </div>
+                <!-- <div class="industry mt-3">
+                    {{ companyDetails.industry }}
+                </div> -->
+
+            </div>
+            </div>
+            
             <div class="company-title-wrapper desc">
                 <div class="symbol">
                     {{ companyDetails.description }}
@@ -56,6 +80,8 @@
                     </div>
                 </div>
                 <div class="chart-options d-flex justify-content-center align-items-center gap-4">
+                    <div class="option" :class="{ 'active': selectedInterval == '1hr' }"
+                        >60m</div>
                     <div class="option" :class="{ 'active': selectedInterval == 'Daily' }"
                         @click="toggleSelectedInterval('Daily')">Daily</div>
                     <div class="option" :class="{ 'active': selectedInterval == 'Weekly' }"
@@ -100,10 +126,18 @@
                 </div>
             </div>
 
-            <div class="mt-3 d-flex justify-content-start gap-4 align-items-center rsi-details">
-                <div>Time Period: 14 <i class="ms-1 fa-solid fa-lock"></i></div>
-                <div>Series Type: Open <i class="ms-1 fa-solid fa-lock"></i></div>
-                <div :class="latestRsiValue > 60 ? 'success' : latestRsiValue < 40 ? 'danger' : 'warning'">{{ RSIStatus }}</div>
+            <div class="mt-3 d-flex justify-content-between gap-4 align-items-center rsi-details">
+                <div class="d-flex gap-3">
+                    <div>Time Period: 14 <i class="ms-1 fa-solid fa-lock"></i></div>
+                    <div>Series Type: Open <i class="ms-1 fa-solid fa-lock"></i></div>
+                </div>
+                
+                <div class="status" :class="latestRsiValue > 60 ? 'success' : latestRsiValue < 40 ? 'danger' : 'warning'">
+                    <i class="fa-solid ms-1 fa-circle-check" v-if="latestRsiValue > 60" ></i>
+                    <i class="fa-solid ms-1 fa-circle-xmark" v-else-if="latestRsiValue < 40"></i>
+                    <i class="fa-solid ms-1 fa-circle-exclamation" v-else></i>
+                    {{ RSIStatus }}
+                </div>
             </div>
 
             <div v-if="dailyRsiData && rsiInterval == 'Daily'" class="w-100">
@@ -164,11 +198,11 @@ export default {
                 return 'error'
             } else {
                 if(this.latestRsiValue > 60) {
-                    return 'Consider - RSI value is above 60'
+                    return 'Consider'
                 } else if(this.latestRsiValue < 40) {
-                    return 'Avoid - RSI value is less than 40'
+                    return 'Avoid'
                 } else {
-                    return 'Wait - RSI value is between 40 and 60'
+                    return 'Wait'
                 }
             }
         }
@@ -236,18 +270,7 @@ export default {
     padding: 20px;
     width: 50%;
 
-    .success {
-        color: #2dc653;
-    }
-
-    .warning {
-        color: #f26419;
-        font-weight: 600;
-    }
-
-    .danger {
-        color: #c81d25;
-    }
+    
     .title {
         font-size: 20px;
         font-weight: 600;
@@ -256,16 +279,22 @@ export default {
         margin: 20px;
     }
 
+    .status {
+        padding: 10px;
+        border: 1px solid #dfe3e7;
+        border-radius: 6px;
+    }
+
     .rsi-details {
         color: #5c667a;
         font-size: 12px;
         font-weight: 400;
         opacity: 0.8;
 
-        i {
-            opacity: 0.4;
-            // font-size: 10px;
-        }
+        // i {
+        //     opacity: 0.4;
+        //     // font-size: 10px;
+        // }
     }
 }
 
@@ -277,14 +306,30 @@ export default {
     padding: 20px;
 }
 
+.success {
+        color: #08a045 !important;
+        font-weight: 600;
+    }
+
+    .warning {
+        color: #f26419;
+        font-weight: 600;
+    }
+
+    .danger {
+        color: #c81d25;
+        font-weight: 600;
+    }
+
 .company-title-wrapper {
     background: #fff;
     border-radius: 20px;
     box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
+    min-width: 30%;
     // border: 1px solid #dfe3e7;
     // box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
     padding: 20px;
-    width: fit-content;
+    // width: fit-content;
     text-align: left;
     height: inherit;
 

@@ -72,8 +72,8 @@ export default {
 
     .title {
         font-weight: 600;
-        font-size: 20px;
-        color: #5c667a;
+        font-size: 16px;
+        color: #315098;
         margin-bottom: 20px;
     }
 }
