@@ -10,7 +10,7 @@
         </div>
         
         <div class="search-list" v-if="searchQuery">
-            <div v-if="stockList.error">
+            <div v-if="stockList?.error">
                 Oops...Something went wrong!
             </div>
             <div v-else>

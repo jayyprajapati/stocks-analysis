@@ -6,44 +6,44 @@
         <div class="company-details-wrapper" v-else>
             <div class="d-flex justify-content-start gap-3 w-100">
                 <div class="company-title-wrapper name">
-                <div class="d-flex justify-content-between align-items-center gap-3">
-                    <div class="title">{{ stockInfo[0].name }}</div>
-                    <i class="fa-solid fa-arrow-right visit-site-link"></i>
-                </div>
-                <div class="divider"></div>
-                <div class="d-flex justify-content-start gap-1 align-items-center symbol">
-                    <div>{{ stockInfo[0].symbol }}</div> &#x2022;
-                    <div>{{ stockInfo[0].exchange }}</div> &#x2022;
-                    <div>{{ stockInfo[0].country }}</div>
-                </div>
-                <div class="industry mt-3">
-                    {{ companyDetails.industry }}
-                </div>
-
-            </div>
-
-            <div class="company-title-wrapper name">
-                <div class="d-flex justify-content-start align-items-center gap-3 success">
-                    <div class="title success">538.60</div>
-                    <i class="fa-solid fa-square-caret-up"></i>
-                    <!-- <i class="fa-solid fa-arrow-right visit-site-link"></i> -->
-                </div>
-                <div class="divider"></div>
-                <div class="d-flex justify-content-between gap-1 align-items-start symbol">
-                    <div>
-                        <div>Last updated on </div>
-                        <div class="mt-2">11:10AM, 30 Aug 2024</div>
+                    <div class="d-flex justify-content-start align-items-center gap-3">
+                        <div class="title">{{ stockInfo[0].name }}</div>
+                        <i class="fa-solid fa-arrow-right visit-site-link"></i>
                     </div>
-                    
-                    <i class="fa-solid fa-arrows-rotate pointer cursor-pointer"></i>
+                    <div class="divider"></div>
+                    <div class="d-flex justify-content-start gap-1 align-items-center symbol">
+                        <div>{{ stockInfo[0].symbol }}</div> &#x2022;
+                        <div>{{ stockInfo[0].exchange }}</div> &#x2022;
+                        <div>{{ stockInfo[0].country }}</div>
+                    </div>
+                    <div class="industry mt-3">
+                        {{ companyDetails.industry }}
+                    </div>
+
                 </div>
-                <!-- <div class="industry mt-3">
+
+                <div class="company-title-wrapper name">
+                    <div class="d-flex justify-content-start align-items-center gap-3 success">
+                        <div class="title success">538.60</div>
+                        <i class="fa-solid fa-square-caret-up"></i>
+                        <!-- <i class="fa-solid fa-arrow-right visit-site-link"></i> -->
+                    </div>
+                    <div class="divider"></div>
+                    <div class="d-flex justify-content-between gap-1 align-items-start symbol">
+                        <div>
+                            <div>Last updated on </div>
+                            <div class="mt-2">11:10AM, 30 Aug 2024</div>
+                        </div>
+
+                        <i class="fa-solid fa-arrows-rotate pointer cursor-pointer"></i>
+                    </div>
+                    <!-- <div class="industry mt-3">
                     {{ companyDetails.industry }}
                 </div> -->
 
+                </div>
             </div>
-            </div>
-            
+
             <div class="company-title-wrapper desc">
                 <div class="symbol">
                     {{ companyDetails.description }}
@@ -80,78 +80,160 @@
                     </div>
                 </div>
                 <div class="chart-options d-flex justify-content-center align-items-center gap-4">
-                    <div class="option" :class="{ 'active': selectedInterval == '1hr' }"
-                        >60m</div>
-                    <div class="option" :class="{ 'active': selectedInterval == 'Daily' }"
-                        @click="toggleSelectedInterval('Daily')">Daily</div>
-                    <div class="option" :class="{ 'active': selectedInterval == 'Weekly' }"
-                        @click="toggleSelectedInterval('Weekly')">
+                    <div class="option">Interval: </div>
+                    <div class="option" :class="{ 'active': timeSeriesInterval == 'Daily' }"
+                        @click="toggleTimeSeriesInterval('Daily')">Daily</div>
+                    <div class="option" :class="{ 'active': timeSeriesInterval == 'Weekly' }"
+                        @click="toggleTimeSeriesInterval('Weekly')">
                         Weekly </div>
-                    <div class="option" :class="{ 'active': selectedInterval == 'Monthly' }"
-                        @click="toggleSelectedInterval('Monthly')">
+                    <div class="option" :class="{ 'active': timeSeriesInterval == 'Monthly' }"
+                        @click="toggleTimeSeriesInterval('Monthly')">
                         Monthly </div>
                 </div>
             </div>
 
+            <div>
+                <div v-if="timeSeriesLoading || Object.keys(localTimeSeriesData).length == 0">
+                    <loader />
+                </div>
+                <div v-else>
+                    <div v-if="localTimeSeriesData?.error">
+                        OOPS...SOMETHING WENT WRONG
+                    </div>
+                    <div v-else>
+                        <div v-if="localTimeSeriesData.values && activeTimeSeriesChart == 'Candlestick'" class="w-100">
+                            <CandleStick :timeSeriesData="localTimeSeriesData" :interval="timeSeriesInterval"
+                                :key="timeSeriesInterval" />
+                        </div>
+                        <div v-if="localTimeSeriesData.values && activeTimeSeriesChart == 'Line'" class="w-100">
+                            <StockLineChart :timeSeriesData="localTimeSeriesData" />
+                        </div>
+                    </div>
 
-            <div v-if="timeSeries && activeTimeSeriesChart == 'Candlestick'" class="w-100">
-                <CandleStick :timeSeriesData="timeSeries" />
+                </div>
             </div>
-            <div v-if="timeSeries && activeTimeSeriesChart == 'Line'" class="w-100">
-                <StockLineChart :timeSeriesData="timeSeries" />
-            </div>
+
+
         </div>
 
-
-
-
-
-        <div class="rsi-wrapper">
-            <div class="title">
+        <!-- Technical Analysis -->
+        <div class="d-flex justify-content-between gap-3 align-items-center">
+            <!-- RSI Chart -->
+            <div class="rsi-wrapper w-100">
+                <div class="title">
                     Relative Strength Index (RSI)
                 </div>
-            <div class="d-flex justify-content-center align-items-center">
-                <div class="chart-options d-flex justify-content-center align-items-center gap-4">
-                    <div class="option" :class="{ 'active': rsiInterval == 'Daily' }"
-                        @click="toggleRsiInterval('Daily')">
-                        Daily</div>
-                    <div class="option" :class="{ 'active': rsiInterval == 'Weekly' }"
-                        @click="toggleRsiInterval('Weekly')">
-                        Weekly
+                <div class="d-flex justify-content-center align-items-center">
+                    <div class="chart-options d-flex justify-content-center align-items-center gap-4">
+                        <div class="option" :class="{ 'active': rsiInterval == 'Daily' }"
+                            @click="toggleRsiInterval('Daily')">
+                            Daily</div>
+                        <div class="option" :class="{ 'active': rsiInterval == 'Weekly' }"
+                            @click="toggleRsiInterval('Weekly')">
+                            Weekly
+                        </div>
+                        <div class="option" :class="{ 'active': rsiInterval == 'Monthly' }"
+                            @click="toggleRsiInterval('Monthly')">Monthly
+                        </div>
+
                     </div>
-                    <div class="option" :class="{ 'active': rsiInterval == 'Monthly' }"
-                        @click="toggleRsiInterval('Monthly')">Monthly
+                </div>
+
+                <div class="mt-3 d-flex justify-content-between gap-4 align-items-center rsi-details">
+                    <div class="d-flex gap-3">
+                        <div>Time Period: 14 <i class="ms-1 fa-solid fa-lock"></i></div>
+                        <div>Series Type: Open <i class="ms-1 fa-solid fa-lock"></i></div>
                     </div>
 
+                    <!-- <div class="status"
+                        :class="latestRsiValue > 60 ? 'success' : latestRsiValue < 40 ? 'danger' : 'warning'">
+                        <i class="fa-solid ms-1 fa-circle-check" v-if="latestRsiValue > 60"></i>
+                        <i class="fa-solid ms-1 fa-circle-xmark" v-else-if="latestRsiValue < 40"></i>
+                        <i class="fa-solid ms-1 fa-circle-exclamation" v-else></i>
+                        {{ RSIStatus }}
+                    </div> -->
                 </div>
+
+                <div>
+                    <div v-if="RSILoading || Object.keys(localRSIData).length == 0">
+                        <loader />
+                    </div>
+                    <div v-else>
+                        <div v-if="localRSIData?.error">
+                            OOPS...SOMETHING WENT WRONG
+                        </div>
+                        <div v-else>
+                            <div v-if="localRSIData.values" class="w-100">
+                                <LineChart :rsiData="localRSIData" :chartInterval="rsiInterval" :key="rsiInterval" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- <div v-if="weeklyRsiData && rsiInterval == 'Weekly'" class="w-100">
+                    <LineChart :rsiData="weeklyRsiData" :chartInterval="'Weekly'" />
+                </div>
+                <div v-if="monthlyRsiData && rsiInterval == 'Monthly'" class="w-100">
+                    <LineChart :rsiData="monthlyRsiData" :chartInterval="'Monthly'" />
+                </div> -->
             </div>
 
-            <div class="mt-3 d-flex justify-content-between gap-4 align-items-center rsi-details">
-                <div class="d-flex gap-3">
-                    <div>Time Period: 14 <i class="ms-1 fa-solid fa-lock"></i></div>
-                    <div>Series Type: Open <i class="ms-1 fa-solid fa-lock"></i></div>
-                </div>
-                
-                <div class="status" :class="latestRsiValue > 60 ? 'success' : latestRsiValue < 40 ? 'danger' : 'warning'">
-                    <i class="fa-solid ms-1 fa-circle-check" v-if="latestRsiValue > 60" ></i>
-                    <i class="fa-solid ms-1 fa-circle-xmark" v-else-if="latestRsiValue < 40"></i>
-                    <i class="fa-solid ms-1 fa-circle-exclamation" v-else></i>
-                    {{ RSIStatus }}
-                </div>
-            </div>
 
-            <div v-if="dailyRsiData && rsiInterval == 'Daily'" class="w-100">
-                <LineChart :rsiData="dailyRsiData" :chartInterval="'Daily'" />
-            </div>
-            <div v-if="weeklyRsiData && rsiInterval == 'Weekly'" class="w-100">
-                <LineChart :rsiData="weeklyRsiData" :chartInterval="'Weekly'" />
-            </div>
-            <div v-if="monthlyRsiData && rsiInterval == 'Monthly'" class="w-100">
-                <LineChart :rsiData="monthlyRsiData" :chartInterval="'Monthly'" />
+            <!-- SMA Chart -->
+            <div class="rsi-wrapper w-100">
+                <div class="title">
+                    Simple Moving Average (SMA)
+                </div>
+                <div class="d-flex justify-content-center align-items-center">
+                    <div class="chart-options d-flex justify-content-center align-items-center gap-4">
+                        <div class="option" :class="{ 'active': smaInterval == 'Daily' }"
+                            @click="toggleSmaInterval('Daily')">
+                            Daily</div>
+                        <div class="option" :class="{ 'active': smaInterval == 'Weekly' }"
+                            @click="toggleSmaInterval('Weekly')">
+                            Weekly
+                        </div>
+                        <div class="option" :class="{ 'active': smaInterval == 'Monthly' }"
+                            @click="toggleSmaInterval('Monthly')">Monthly
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="mt-3 d-flex justify-content-between gap-4 align-items-center rsi-details">
+                    <div class="d-flex gap-3">
+                        <div>Time Period: 20 <i class="ms-1 fa-solid fa-lock"></i></div>
+                        <div>Series Type: Open <i class="ms-1 fa-solid fa-lock"></i></div>
+                    </div>
+
+                    <!-- <div class="status"
+                        :class="latestRsiValue > 60 ? 'success' : latestRsiValue < 40 ? 'danger' : 'warning'">
+                        <i class="fa-solid ms-1 fa-circle-check" v-if="latestRsiValue > 60"></i>
+                        <i class="fa-solid ms-1 fa-circle-xmark" v-else-if="latestRsiValue < 40"></i>
+                        <i class="fa-solid ms-1 fa-circle-exclamation" v-else></i>
+                        {{ RSIStatus }}
+                    </div> -->
+                </div>
+
+                <div>
+                    <div v-if="SMALoading" class="d-flex justify-content-center align-items-center w-100">
+                        <loader />
+                    </div>
+                    <div v-else>
+                        <div v-if="localSMAData?.error">
+                            OOPS...SOMETHING WENT WRONG
+                        </div>
+                        <div v-else>
+                            <div v-if="localSMAData.values" class="w-100">
+                                <SMALineChart :smaData="localSMAData" :chartInterval="smaInterval"
+                                    :timeSeriesData="timeSeries[smaInterval]" :key="smaInterval" />
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
             </div>
         </div>
-
-
     </div>
 
 </template>
@@ -161,52 +243,72 @@ import { mapGetters } from 'vuex';
 import CandleStick from '@/components/CandleStick.vue';
 import LineChart from '@/components/LineChart.vue';
 import StockLineChart from '@/components/StockLineChart.vue';
+import SMALineChart from '@/components/SMALineChart.vue';
+import Loader from '@/components/Loader.vue';
 
 export default {
     name: "StockAnalysis",
     data() {
         return {
             activeTimeSeriesChart: 'Candlestick',
-            selectedInterval: 'Daily',
+            timeSeriesInterval: 'Daily',
             rsiInterval: "Daily",
+            smaInterval: 'Daily'
         }
     },
     components: {
         CandleStick,
         LineChart,
-        StockLineChart
+        StockLineChart,
+        SMALineChart,
+        Loader
     },
     computed: {
-        ...mapGetters(['stockInfo', 'companyDetails', 'symbol', 'timeSeries', 'dailyRsiData', 'weeklyRsiData', 'monthlyRsiData']),
-        latestRsiValue() {
-            if(this.rsiInterval == 'Daily' && this.dailyRsiData) {
-                return this.dailyRsiData.values[0].rsi
-            }
-
-            if(this.rsiInterval == 'Weekly' && this.weeklyRsiData) {
-                return this.weeklyRsiData.values[0].rsi
-            }
-
-            if(this.rsiInterval == 'Monthly' && this.monthlyRsiData) {
-                return this.monthlyRsiData.values[0].rsi
-            }
-
-            return 0
+        ...mapGetters(['stockInfo', 'companyDetails', 'timeSeries', 'RSILoading', 'symbol', 'dailyTimeSeries', 'weeklyTimeSeries', 'monthlyTimeSeries', 'dailyRsiData', 'weeklyRsiData', 'monthlyRsiData', 'dailySmaData', 'weeklySmaData', 'monthlySmaData', 'SMALoading', 'timeSeriesLoading', 'rsiData', 'smaData']),
+        localTimeSeriesData() {
+            return this.timeSeries[this.timeSeriesInterval];
         },
-        RSIStatus() {
-            if(this.latestRsiValue == 0) {
-                return 'error'
-            } else {
-                if(this.latestRsiValue > 60) {
-                    return 'Consider'
-                } else if(this.latestRsiValue < 40) {
-                    return 'Avoid'
-                } else {
-                    return 'Wait'
-                }
-            }
+        localRSIData() {
+            return this.rsiData[this.rsiInterval];
+        },
+        localSMAData() {
+            return this.smaData[this.smaInterval]
         }
+        // latestRsiValue() {
+        //     if (this.rsiInterval == 'Daily' && this.dailyRsiData) {
+        //         return this.dailyRsiData.values[0].rsi
+        //     }
+
+        //     if (this.rsiInterval == 'Weekly' && this.weeklyRsiData) {
+        //         return this.weeklyRsiData.values[0].rsi
+        //     }
+
+        //     if (this.rsiInterval == 'Monthly' && this.monthlyRsiData) {
+        //         return this.monthlyRsiData.values[0].rsi
+        //     }
+
+        //     return 0
+        // },
+        // RSIStatus() {
+        //     if (this.latestRsiValue == 0) {
+        //         return 'error'
+        //     } else {
+        //         if (this.latestRsiValue > 60) {
+        //             return 'Consider'
+        //         } else if (this.latestRsiValue < 40) {
+        //             return 'Avoid'
+        //         } else {
+        //             return 'Wait'
+        //         }
+        //     }
+        // },
     },
+    // watch: {
+    //     timeSeries: [{
+    //         handler: 'updateTimeSeriesData',
+    //         deep: true
+    //     }]
+    // },
     methods: {
         toggleChartView() {
             if (this.activeTimeSeriesChart == 'Candlestick') {
@@ -215,37 +317,71 @@ export default {
                 this.activeTimeSeriesChart = 'Candlestick'
             }
         },
-        toggleSelectedInterval(interval) {
-            this.selectedInterval = interval
+        toggleTimeSeriesInterval(interval) {
+            this.timeSeriesInterval = interval;
+
+            const timeSeriesPayload = {
+                symbol: `${this.symbol}.BSE`,
+                interval: interval
+            };
+
+            this.$store.dispatch('FetchTimeSeries', timeSeriesPayload);
         },
         toggleRsiInterval(interval) {
-            this.rsiInterval = interval
+            this.rsiInterval = interval;
+            const TechnicalDataPayload = {
+                timePeriod: 14,
+                seriesType: 'open',
+                symbol: `${this.symbol}.BSE`,
+                interval: interval
+            }
+            this.$store.dispatch('FetchTechnicalData', { ...TechnicalDataPayload, function: "RSI" });
+        },
+        toggleSmaInterval(interval) {
+            this.smaInterval = interval;
+            const TechnicalDataPayload = {
+                timePeriod: 14,
+                seriesType: 'open',
+                symbol: `${this.symbol}.BSE`,
+                interval: interval
+            }
+            const timeSeriesPayload = {
+                symbol: `${this.symbol}.BSE`,
+                interval: interval
+            };
+            this.$store.dispatch('FetchTechnicalData', { ...TechnicalDataPayload, function: "SMA" });
+            this.$store.dispatch('FetchTimeSeries', timeSeriesPayload);
         },
         delay(ms) {
             return new Promise(resolve => setTimeout(resolve, ms));
-        }
+        },
+        // updateTimeSeriesData(value) {
+        //     if(value) {
+        //         this.localTimeSeriesData = value
+        //     }
+
+        // }
     },
     async mounted() {
         const query = this.symbol ? this.symbol : this.$route.query.symbol;
-
         if (query) {
-            // this.symbol = query;
-            // if(!this.timeSeries || this.timeSeries.error) {
             this.$store.dispatch('FetchCompanyDetails', query);
-            this.$store.dispatch('FetchTimeSeries', `${query}.BSE`);
-            // }
-            const payload = {
+
+            const timeSeriesPayload = {
+                symbol: `${query}.BSE`,
+                interval: 'Daily'
+            };
+
+            this.$store.dispatch('FetchTimeSeries', timeSeriesPayload);
+
+            const TechnicalDataPayload = {
                 timePeriod: 14,
                 seriesType: 'open',
-                symbol: `${this.symbol}.BSE`
+                symbol: `${this.symbol}.BSE`,
+                interval: 'Daily'
             }
-            this.$store.dispatch('FetchRSIData', { ...payload, interval: "daily" });
-            await this.delay(1000);
-            this.$store.dispatch('FetchRSIData', { ...payload, interval: "monthly" });
-            await this.delay(1000);
-            this.$store.dispatch('FetchRSIData', { ...payload, interval: "weekly" })
-
-
+            this.$store.dispatch('FetchTechnicalData', { ...TechnicalDataPayload, function: "RSI" });
+            this.$store.dispatch('FetchTechnicalData', { ...TechnicalDataPayload, function: "SMA" });
         } else {
             this.$router.push({ name: 'home' });
         }
@@ -270,7 +406,7 @@ export default {
     padding: 20px;
     width: 50%;
 
-    
+
     .title {
         font-size: 20px;
         font-weight: 600;
@@ -307,19 +443,19 @@ export default {
 }
 
 .success {
-        color: #08a045 !important;
-        font-weight: 600;
-    }
+    color: #08a045 !important;
+    font-weight: 600;
+}
 
-    .warning {
-        color: #f26419;
-        font-weight: 600;
-    }
+.warning {
+    color: #f26419;
+    font-weight: 600;
+}
 
-    .danger {
-        color: #c81d25;
-        font-weight: 600;
-    }
+.danger {
+    color: #c81d25;
+    font-weight: 600;
+}
 
 .company-title-wrapper {
     background: #fff;

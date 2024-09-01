@@ -14,17 +14,29 @@ import * as d3 from "d3";
 
 export default {
     name: "CandleStick",
-    props: ["timeSeriesData"],
+    props: ["timeSeriesData", "interval"],
     // data() {
     //     return {
 
     //     }
     // },
+    computed: {
+        data() {
+            const data = this.timeSeriesData['values'];
+            if(this.timeSeriesData.interval == 'Daily') {
+                return data.slice(0,150)
+            } else if(this.timeSeriesData.interval == 'Weekly') {
+                return data.slice(0,100)
+            } else {
+                return data.slice(0, 50)
+            }
+        }
+    },
     mounted() {
         const candleStickPlaceholder = this.$refs.candleStick;
 
         // const AAPL =ticker.slice(-120);
-        const data = this.timeSeriesData['values'];
+        // const data = this.timeSeriesData['values'];
         // const parsedTicker = ticker.map(d => ({
         //     ...d,
         //     date: new Date(d.date)
@@ -43,7 +55,7 @@ export default {
                 // tickRotate: -90
             },
             y: {
-                domain: [d3.min(data, d => d.low) - 20, d3.max(data, d => d.high) + 40], // Start from 0 to max high + 20 for spacing
+                domain: [d3.min(this.data, d => d.low) - 20, d3.max(this.data, d => d.high) + 40], // Start from 0 to max high + 20 for spacing
                 // ticks: d3.range(d3.min(data, d => d.low) - 20, d3.max(data, d => d.high) + 100, 10), // Ticks at every 20 units
                 label: "Price (₹)",
                 tickFormat: d => d.toFixed(0), // Ensure ticks are integers
@@ -53,13 +65,13 @@ export default {
                 range: ["red", "green"]
             },
             marks: [
-                Plot.ruleX(data, {
+                Plot.ruleX(this.data, {
                     x: "datetime",
                     y1: "low",
                     y2: "high",
                     // tip: true
                 }),
-                Plot.ruleX(data, {
+                Plot.ruleX(this.data, {
                     x: "datetime",
                     y1: "open",
                     y2: "close",
@@ -68,8 +80,8 @@ export default {
                     // tip: true
                     strokeLinecap: "round"
                 }),
-                Plot.crosshairX(data, {x: "datetime", y: "open"}),
-                Plot.text(data, Plot.pointerX({px: "datetime", py: "close", dy: -17, frameAnchor: "top-right", fontVariant: "tabular-nums", text: (d) => [`C: ${(+d.close).toFixed(2)}`, `O: ${(+d.open).toFixed(2)}`, `H: ${(+d.high).toFixed(2)}`, `L: ${(+d.low).toFixed(2)}`].join("   "), fontWeight: "bold", fontSize: 14, fill: '#5c667a'}))
+                Plot.crosshairX(this.data, {x: "datetime", y: "open"}),
+                Plot.text(this.data, Plot.pointerX({px: "datetime", py: "close", dy: -17, frameAnchor: "top-right", fontVariant: "tabular-nums", text: (d) => [`C: ${(+d.close).toFixed(2)}`, `O: ${(+d.open).toFixed(2)}`, `H: ${(+d.high).toFixed(2)}`, `L: ${(+d.low).toFixed(2)}`].join("   "), fontWeight: "bold", fontSize: 14, fill: '#5c667a'}))
             ]
         })
 
