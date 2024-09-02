@@ -1,5 +1,8 @@
 <template>
-<div class="line-wobble"></div>
+    <div class="d-flex justify-content-center align-items-center m-5">
+        <div class="line-wobble"></div>
+    </div>
+
 </template>
 
 <script>

@@ -45,13 +45,13 @@ export default {
             y: {
                 domain: [d3.min(data, d => d.low) - 20, d3.max(data, d => d.high) + 40], // Start from 0 to max high + 20 for spacing
                 // ticks: d3.range(d3.min(data, d => d.low) - 20, d3.max(data, d => d.high) + 100, 10), // Ticks at every 20 units
-                label: "Price",
+                label: "Price (₹)",
                 tickFormat: d => d.toFixed(0), // Ensure ticks are integers
                 grid: true
             },
             marks: [
                 
-                Plot.line(data, {x: "datetime", y: "close",  strokeWidth:4 , stroke: '#06d6a0'}),
+                Plot.line(data, {x: "datetime", y: "close",  strokeWidth:4 , stroke: '#06d6a0', tip: {title: d => `Close: ${d.close}`}}),
                 Plot.areaY(data, {x: "datetime", y2: d3.min(data, d => d.low) - 20, y1: "close",  fillOpacity:0.2 , fill: '#06d6a0'}),
                 Plot.crosshairX(data, {x: "datetime", y: "close"}),
                 Plot.text(data, Plot.pointerX({px: "datetime", py: "close", dy: -17, frameAnchor: "top-right", fontVariant: "tabular-nums", text: (d) => [`C: ${(+d.close).toFixed(2)}`, `O: ${(+d.open).toFixed(2)}`, `H: ${(+d.high).toFixed(2)}`, `L: ${(+d.low).toFixed(2)}`].join("   "), fontWeight: "bold", fontSize: 14, fill: '#5c667a'}))

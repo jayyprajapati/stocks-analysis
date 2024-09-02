@@ -19,28 +19,28 @@
                     <div class="industry mt-3">
                         {{ companyDetails.industry }}
                     </div>
-
                 </div>
 
                 <div class="company-title-wrapper name">
-                    <div class="d-flex justify-content-start align-items-center gap-3 success">
-                        <div class="title success">{{latestStockPrice[0]}}</div>
-                        <i class="fa-solid fa-square-caret-up"></i>
-                        <!-- <i class="fa-solid fa-arrow-right visit-site-link"></i> -->
+                    <div class="d-flex justify-content-between align-items-baseline gap-3"
+                        :class="latestPriceIndicator == 1 ? 'success' : 'danger'">
+                        <div class="d-flex justify-content-start align-items-center gap-3">
+                            <div class="title latest-price" :class="latestPriceIndicator == 1 ? 'success' : 'danger'">
+                                {{ latestStockPrice.length > 1 ? `₹ ${parseFloat(latestStockPrice[0].close).toFixed(2)}`
+                                :
+                                (latestStockPrice[0])}}</div>
+                            <i class="fa-solid fa-square-caret-up latest-price-indicator"
+                                v-if="latestPriceIndicator == 1"></i>
+                            <i class="fa-solid fa-square-caret-down latest-price-indicator"
+                                v-else-if="latestPriceIndicator == -1"></i>
+                        </div>
+                        <div>{{ latestPricePercentageDiff }}%</div>
                     </div>
                     <div class="divider"></div>
-                    <div class="d-flex justify-content-between gap-1 align-items-start symbol">
-                        <div>
-                            <div>Last updated on </div>
-                            <div class="mt-2">11:10AM, 30 Aug 2024</div>
-                        </div>
-
-                        <i class="fa-solid fa-arrows-rotate pointer cursor-pointer"></i>
+                    <div class="symbol">
+                        <div><span class="me-1">Closing Price:</span> {{ latestStockPrice.length > 1 &&
+                            formatDate(latestStockPrice[0].datetime) }}</div>
                     </div>
-                    <!-- <div class="industry mt-3">
-                    {{ companyDetails.industry }}
-                </div> -->
-
                 </div>
             </div>
 
@@ -57,17 +57,7 @@
                         {{ peer }}
                     </div>
                 </div>
-
-
             </div>
-            <!-- <div class="title">{{ stockInfo[0].name }}</div>
-            <div class="symbol">{{ stockInfo[0].symbol }}</div>
-            <div class="symbol">{{ stockInfo[0].country }}</div>
-            <div class="symbol">{{ stockInfo[0].exchange }}</div>
-            <div class="symbol">{{ companyDetails.description }}</div>
-            <div class="symbol">{{ companyDetails.industry }}</div>
-            <div class="symbol" v-for="peer of companyDetails.peers" :key="peer">{{ peer }}</div>
-            <a :href="companyDetails.site_url" class="symbol">Visit Site</a> -->
         </div>
 
         <div class="timeseries-wrapper">
@@ -80,7 +70,6 @@
                     </div>
                 </div>
                 <div class="chart-options d-flex justify-content-center align-items-center gap-4">
-                    <div class="option">Interval: </div>
                     <div class="option" :class="{ 'active': timeSeriesInterval == 'Daily' }"
                         @click="toggleTimeSeriesInterval('Daily')">Daily</div>
                     <div class="option" :class="{ 'active': timeSeriesInterval == 'Weekly' }"
@@ -109,11 +98,8 @@
                             <StockLineChart :timeSeriesData="localTimeSeriesData" />
                         </div>
                     </div>
-
                 </div>
             </div>
-
-
         </div>
 
         <!-- Technical Analysis -->
@@ -144,14 +130,12 @@
                         <div>Time Period: 14 <i class="ms-1 fa-solid fa-lock"></i></div>
                         <div>Series Type: Open <i class="ms-1 fa-solid fa-lock"></i></div>
                     </div>
-
-                    <!-- <div class="status"
-                        :class="latestRsiValue > 60 ? 'success' : latestRsiValue < 40 ? 'danger' : 'warning'">
-                        <i class="fa-solid ms-1 fa-circle-check" v-if="latestRsiValue > 60"></i>
-                        <i class="fa-solid ms-1 fa-circle-xmark" v-else-if="latestRsiValue < 40"></i>
-                        <i class="fa-solid ms-1 fa-circle-exclamation" v-else></i>
-                        {{ RSIStatus }}
-                    </div> -->
+                    <div class="d-flex gap-3">
+                        <input type="number" v-model="rsiMin" class="rsi-input" placeholder="RSI Min" name="rsiMin"
+                            id="rsiMin">
+                        <input type="number" v-model="rsiMax" class="rsi-input" placeholder="RSI Max" name="rsiMax"
+                            id="rsiMax">
+                    </div>
                 </div>
 
                 <div>
@@ -164,20 +148,13 @@
                         </div>
                         <div v-else>
                             <div v-if="localRSIData.values" class="w-100">
-                                <LineChart :rsiData="localRSIData" :chartInterval="rsiInterval" :key="rsiInterval" />
+                                <LineChart :rsiData="localRSIData" :chartInterval="rsiInterval"
+                                    :key="`${rsiInterval}:${rsiMin}:${rsiMax}`" :rsiMin="rsiMin" :rsiMax="rsiMax" />
                             </div>
                         </div>
                     </div>
                 </div>
-
-                <!-- <div v-if="weeklyRsiData && rsiInterval == 'Weekly'" class="w-100">
-                    <LineChart :rsiData="weeklyRsiData" :chartInterval="'Weekly'" />
-                </div>
-                <div v-if="monthlyRsiData && rsiInterval == 'Monthly'" class="w-100">
-                    <LineChart :rsiData="monthlyRsiData" :chartInterval="'Monthly'" />
-                </div> -->
             </div>
-
 
             <!-- SMA Chart -->
             <div class="rsi-wrapper w-100">
@@ -205,14 +182,6 @@
                         <div>Time Period: 20 <i class="ms-1 fa-solid fa-lock"></i></div>
                         <div>Series Type: Open <i class="ms-1 fa-solid fa-lock"></i></div>
                     </div>
-
-                    <!-- <div class="status"
-                        :class="latestRsiValue > 60 ? 'success' : latestRsiValue < 40 ? 'danger' : 'warning'">
-                        <i class="fa-solid ms-1 fa-circle-check" v-if="latestRsiValue > 60"></i>
-                        <i class="fa-solid ms-1 fa-circle-xmark" v-else-if="latestRsiValue < 40"></i>
-                        <i class="fa-solid ms-1 fa-circle-exclamation" v-else></i>
-                        {{ RSIStatus }}
-                    </div> -->
                 </div>
 
                 <div>
@@ -229,7 +198,6 @@
                                     :timeSeriesData="timeSeries[smaInterval]" :key="smaInterval" />
                             </div>
                         </div>
-
                     </div>
                 </div>
             </div>
@@ -253,7 +221,9 @@ export default {
             activeTimeSeriesChart: 'Candlestick',
             timeSeriesInterval: 'Daily',
             rsiInterval: "Daily",
-            smaInterval: 'Daily'
+            smaInterval: 'Daily',
+            rsiMin: 40,
+            rsiMax: 60
         }
     },
     components: {
@@ -275,45 +245,34 @@ export default {
             return this.smaData[this.smaInterval]
         },
         latestStockPrice() {
-            if(Object.keys(this.timeSeries['Daily']).length > 0 && !this.timeSeries['Daily']['error'])
-                return [this.timeSeries['Daily']['values'][0].close, this.timeSeries['Daily']['values'][1].close]
+            if (Object.keys(this.timeSeries['Daily']).length > 0 && !this.timeSeries['Daily']['error'])
+                return [this.timeSeries['Daily']['values'][0], this.timeSeries['Daily']['values'][1]]
             else return ['Error']
+        },
+        latestPriceIndicator() {
+            if (this.latestStockPrice.length > 1) {
+                if (this.latestStockPrice[0].close > this.latestStockPrice[1].close) {
+                    return 1
+                } else {
+                    return -1
+                }
+            } else {
+                return 0
+            }
+        },
+        latestPricePercentageDiff() {
+            if (this.latestStockPrice.length > 1) {
+                const value1 = parseFloat(this.latestStockPrice[0].close)
+                const value2 = parseFloat(this.latestStockPrice[1].close)
+                const difference = (value1 - value2);
+                const average = (value1 + value2) / 2;
+                const percentageDifference = ((difference / average) * 100).toFixed(2);
+                return percentageDifference;
+            } else {
+                return 0
+            }
         }
-        // latestRsiValue() {
-        //     if (this.rsiInterval == 'Daily' && this.dailyRsiData) {
-        //         return this.dailyRsiData.values[0].rsi
-        //     }
-
-        //     if (this.rsiInterval == 'Weekly' && this.weeklyRsiData) {
-        //         return this.weeklyRsiData.values[0].rsi
-        //     }
-
-        //     if (this.rsiInterval == 'Monthly' && this.monthlyRsiData) {
-        //         return this.monthlyRsiData.values[0].rsi
-        //     }
-
-        //     return 0
-        // },
-        // RSIStatus() {
-        //     if (this.latestRsiValue == 0) {
-        //         return 'error'
-        //     } else {
-        //         if (this.latestRsiValue > 60) {
-        //             return 'Consider'
-        //         } else if (this.latestRsiValue < 40) {
-        //             return 'Avoid'
-        //         } else {
-        //             return 'Wait'
-        //         }
-        //     }
-        // },
     },
-    // watch: {
-    //     timeSeries: [{
-    //         handler: 'updateTimeSeriesData',
-    //         deep: true
-    //     }]
-    // },
     methods: {
         toggleChartView() {
             if (this.activeTimeSeriesChart == 'Candlestick') {
@@ -321,6 +280,11 @@ export default {
             } else {
                 this.activeTimeSeriesChart = 'Candlestick'
             }
+        },
+        formatDate(dateString) {
+            const date = new Date(dateString);
+            const options = { day: 'numeric', month: 'short', year: 'numeric' };
+            return date.toLocaleDateString('en-GB', options);
         },
         toggleTimeSeriesInterval(interval) {
             this.timeSeriesInterval = interval;
@@ -330,7 +294,10 @@ export default {
                 interval: interval
             };
 
-            this.$store.dispatch('FetchTimeSeries', timeSeriesPayload);
+            if (Object.keys(this.timeSeries[interval]).length == 0 || this.timeSeries[interval].error) {
+                this.$store.dispatch('FetchTimeSeries', timeSeriesPayload);
+            }
+
         },
         toggleRsiInterval(interval) {
             this.rsiInterval = interval;
@@ -340,7 +307,10 @@ export default {
                 symbol: `${this.symbol}.BSE`,
                 interval: interval
             }
-            this.$store.dispatch('FetchTechnicalData', { ...TechnicalDataPayload, function: "RSI" });
+            if (Object.keys(this.rsiData[interval]).length == 0 || this.rsiData[interval].error) {
+                this.$store.dispatch('FetchTechnicalData', { ...TechnicalDataPayload, function: "RSI" });
+            }
+
         },
         toggleSmaInterval(interval) {
             this.smaInterval = interval;
@@ -354,18 +324,17 @@ export default {
                 symbol: `${this.symbol}.BSE`,
                 interval: interval
             };
-            this.$store.dispatch('FetchTechnicalData', { ...TechnicalDataPayload, function: "SMA" });
-            this.$store.dispatch('FetchTimeSeries', timeSeriesPayload);
+            if (Object.keys(this.timeSeries[interval]).length == 0 || this.timeSeries[interval].error) {
+                this.$store.dispatch('FetchTimeSeries', timeSeriesPayload);
+            }
+
+            if (Object.keys(this.smaData[interval]).length == 0 || this.smaData[interval].error) {
+                this.$store.dispatch('FetchTechnicalData', { ...TechnicalDataPayload, function: "SMA" });
+            }
         },
         delay(ms) {
             return new Promise(resolve => setTimeout(resolve, ms));
         },
-        // updateTimeSeriesData(value) {
-        //     if(value) {
-        //         this.localTimeSeriesData = value
-        //     }
-
-        // }
     },
     async mounted() {
         const query = this.symbol ? this.symbol : this.$route.query.symbol;
@@ -431,11 +400,6 @@ export default {
         font-size: 12px;
         font-weight: 400;
         opacity: 0.8;
-
-        // i {
-        //     opacity: 0.4;
-        //     // font-size: 10px;
-        // }
     }
 }
 
@@ -453,13 +417,25 @@ export default {
 }
 
 .warning {
-    color: #f26419;
+    color: #f26419 !important;
     font-weight: 600;
 }
 
 .danger {
-    color: #c81d25;
+    color: #c81d25 !important;
     font-weight: 600;
+}
+
+.rsi-input {
+    padding: 5px;
+    border: 1px solid #5c667a;
+    border-radius: 3px;
+    height: 28px;
+    width: 80px;
+
+    :focus {
+        outline: unset;
+    }
 }
 
 .company-title-wrapper {
@@ -467,10 +443,7 @@ export default {
     border-radius: 20px;
     box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
     min-width: 30%;
-    // border: 1px solid #dfe3e7;
-    // box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
     padding: 20px;
-    // width: fit-content;
     text-align: left;
     height: inherit;
 
@@ -482,7 +455,6 @@ export default {
     }
 
     .symbol {
-        // padding-top: 10px;
         font-size: 14px;
         color: #5c667a;
         font-weight: 400;
@@ -498,13 +470,15 @@ export default {
     }
 }
 
-// .desc {
-//     width: 60%;
-// }
+.latest-price {
+    font-size: 42px !important;
+    line-height: unset !important;
+}
 
-// .name {
-//     width: 40%;
-// }
+.latest-price-indicator {
+    font-size: 24px;
+}
+
 .visit-site-link {
     color: #5c667a;
     rotate: -45deg;
@@ -538,11 +512,6 @@ export default {
     padding-inline: 10px;
     color: #5c667a;
 }
-
-// ef476f
-// ffd166
-// 06d6a0
-// fffcf9
 .active {
     color: #315098;
     background: #f3f5f7;
