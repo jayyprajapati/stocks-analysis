@@ -2,8 +2,8 @@
   <nav>
     <img src="./assets/svg/TradeTactix.svg" alt="">
     <div class="d-flex gap-5">
-      <div>About</div>
-      <div>Contact Us</div>
+      <div>How this works?</div>
+      <div>Contact</div>
     </div>
   </nav>
   <router-view/>
