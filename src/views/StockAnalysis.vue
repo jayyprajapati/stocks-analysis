@@ -24,7 +24,7 @@
 
                 <div class="company-title-wrapper name">
                     <div class="d-flex justify-content-start align-items-center gap-3 success">
-                        <div class="title success">538.60</div>
+                        <div class="title success">{{latestStockPrice[0]}}</div>
                         <i class="fa-solid fa-square-caret-up"></i>
                         <!-- <i class="fa-solid fa-arrow-right visit-site-link"></i> -->
                     </div>
@@ -273,6 +273,11 @@ export default {
         },
         localSMAData() {
             return this.smaData[this.smaInterval]
+        },
+        latestStockPrice() {
+            if(Object.keys(this.timeSeries['Daily']).length > 0 && !this.timeSeries['Daily']['error'])
+                return [this.timeSeries['Daily']['values'][0].close, this.timeSeries['Daily']['values'][1].close]
+            else return ['Error']
         }
         // latestRsiValue() {
         //     if (this.rsiInterval == 'Daily' && this.dailyRsiData) {
