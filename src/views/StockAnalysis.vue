@@ -16,7 +16,7 @@
                         <div>{{ stockInfo[0].exchange }}</div> &#x2022;
                         <div>{{ stockInfo[0].country }}</div>
                     </div>
-                    <div class="industry mt-3">
+                    <div class="industry mt-3" :key="companyDetails.name">
                         {{ companyDetails.industry }}
                     </div>
                 </div>
@@ -44,7 +44,7 @@
                 </div>
             </div>
 
-            <div class="company-title-wrapper desc">
+            <div class="company-title-wrapper desc" :key="companyDetails.name">
                 <div class="symbol">
                     {{ companyDetails.description }}
                 </div>
@@ -185,15 +185,15 @@
                 </div>
 
                 <div>
-                    <div v-if="SMALoading" class="d-flex justify-content-center align-items-center w-100">
+                    <div v-if="SMALoading || timeSeriesLoading" class="d-flex justify-content-center align-items-center w-100">
                         <loader />
                     </div>
                     <div v-else>
-                        <div v-if="localSMAData?.error">
+                        <div v-if="localSMAData?.error || timeSeries[smaInterval]?.error">
                             OOPS...SOMETHING WENT WRONG
                         </div>
                         <div v-else>
-                            <div v-if="localSMAData.values" class="w-100">
+                            <div v-if="localSMAData.values && timeSeries[smaInterval].values" class="w-100">
                                 <SMALineChart :smaData="localSMAData" :chartInterval="smaInterval"
                                     :timeSeriesData="timeSeries[smaInterval]" :key="smaInterval" />
                             </div>
@@ -245,9 +245,11 @@ export default {
             return this.smaData[this.smaInterval]
         },
         latestStockPrice() {
-            if (Object.keys(this.timeSeries['Daily']).length > 0 && !this.timeSeries['Daily']['error'])
+            if(this.timeSeries['Daily']['error']) {
+                return ["Error"]
+            }else if (Object.keys(this.timeSeries['Daily']).length > 0)
                 return [this.timeSeries['Daily']['values'][0], this.timeSeries['Daily']['values'][1]]
-            else return ['Error']
+            else return ['Loading']
         },
         latestPriceIndicator() {
             if (this.latestStockPrice.length > 1) {

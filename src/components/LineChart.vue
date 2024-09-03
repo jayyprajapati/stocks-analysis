@@ -41,13 +41,15 @@ export default {
                 Plot.ruleY([this.rsiMin, this.rsiMax], { stroke: "#ffd166", opacity: 1, strokeWidth: 0.5 }),
                 Plot.ruleY([0]),
                 Plot.line(data, { x: "datetime", y: d => +d.rsi, strokeWidth: 2, stroke: '#315098', strokeLinecap: "round" }),
-                Plot.crosshairX(data, { x: "datetime", y: d => +d.rsi }),
+                // Plot.crosshairX(data, { x: "datetime", y: d => +d.rsi }),
+                Plot.ruleX(data, Plot.pointerX({x: "datetime", py: "rsi", stroke: "#bf0603"})),
                 Plot.dot(data, Plot.pointerX({ x: "datetime", y: d => +d.rsi, stroke: "#bf0603" })),
                 Plot.text(data, Plot.pointerX({ 
                     px: "datetime", py: d => +d.rsi, frameAnchor: "top-right", fontVariant: "tabular-nums", 
-                    text: (d) => [`Date: ${(d.datetime)}`, `RSI: ${(+d.rsi).toFixed(2)}`].join("   "), 
+                    text: (d) => [`${this.$functions.formattedDate(d.datetime, this.chartInterval)}`, `RSI: ${(+d.rsi).toFixed(2)}`].join("   "), 
                     fontWeight: "bold", fontSize: 14, fill: '#5c667a' 
-                }))
+                })),
+                
             ]
         });
 

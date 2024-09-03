@@ -11,7 +11,7 @@ import * as d3 from "d3";
 
 export default {
     name: "SMALineChart",
-    props: ["timeSeriesData", "smaData"],
+    props: ["timeSeriesData", "smaData", "chartInterval"],
     computed: {
         timeSeries() {
             return this.timeSeriesData['values'];
@@ -41,10 +41,17 @@ export default {
                 Plot.line(this.timeSeries, {x: "datetime", y: "close",  strokeWidth:2 , stroke: '#06d6a0'}),
                 Plot.areaY(this.timeSeries, {x: "datetime", y2: d3.min(this.timeSeries, d => d.low) - 20, y1: "close",  fillOpacity:0.2 , fill: '#06d6a0'}),
                 Plot.crosshairX(this.timeSeries, {x: "datetime", y: "close"}),
+                Plot.ruleX(data1, Plot.pointerX({x: "datetime", py: "sma", stroke: "#315098"})),
+                Plot.dot(data1, Plot.pointerX({ x: "datetime", y: d => +d.sma, stroke: "#bf0603" })),
                 Plot.text(this.timeSeries, Plot.pointerX({
                     px: "datetime", py: "close", dy: -17, frameAnchor: "top-right", fontVariant: "tabular-nums", 
-                    text: (d) => [`C: ${(+d.close).toFixed(2)}`, `O: ${(+d.open).toFixed(2)}`, `H: ${(+d.high).toFixed(2)}`, `L: ${(+d.low).toFixed(2)}`].join("   "), 
+                    text: (d) => [`Close: ${(+d.close).toFixed(2)}`].join("   "), 
                     fontWeight: "bold", fontSize: 14, fill: '#5c667a'
+                })),
+                Plot.text(data1, Plot.pointerX({ 
+                    px: "datetime", py: d => +d.sma, frameAnchor: "top-right", fontVariant: "tabular-nums", 
+                    text: (d) => [`${this.$functions.formattedDate(d.datetime, this.chartInterval)}`, `SMA: ${(+d.sma).toFixed(2)}`].join("   "), 
+                    fontWeight: "bold", fontSize: 14, fill: '#5c667a' 
                 }))
             ]
         })
