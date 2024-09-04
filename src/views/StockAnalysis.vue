@@ -4,47 +4,48 @@
             Oops...something went wrong!!
         </div>
         <div class="company-details-wrapper" v-else>
-            <div class="d-flex justify-content-start gap-3 w-100">
-                <div class="company-title-wrapper name">
-                    <div class="d-flex justify-content-start align-items-center gap-3">
-                        <div class="title">{{ stockInfo[0].name }}</div>
-                        <i class="fa-solid fa-arrow-right visit-site-link"></i>
-                    </div>
-                    <div class="divider"></div>
-                    <div class="d-flex justify-content-start gap-1 align-items-center symbol">
-                        <div>{{ stockInfo[0].symbol }}</div> &#x2022;
-                        <div>{{ stockInfo[0].exchange }}</div> &#x2022;
-                        <div>{{ stockInfo[0].country }}</div>
-                    </div>
-                    <div class="industry mt-3" :key="companyDetails.name">
-                        {{ companyDetails.industry }}
-                    </div>
+            <!-- Company Name and stock exchange -->
+            <div class="company-title-wrapper company-name-wrapper name">
+                <div class="d-flex justify-content-start align-items-center gap-3">
+                    <div class="title">{{ stockInfo[0].name }}</div>
+                    <i class="fa-solid fa-arrow-right visit-site-link"></i>
                 </div>
-
-                <div class="company-title-wrapper name">
-                    <div class="d-flex justify-content-between align-items-baseline gap-3"
-                        :class="latestPriceIndicator == 1 ? 'success' : 'danger'">
-                        <div class="d-flex justify-content-start align-items-center gap-3">
-                            <div class="title latest-price" :class="latestPriceIndicator == 1 ? 'success' : 'danger'">
-                                {{ latestStockPrice.length > 1 ? `₹ ${parseFloat(latestStockPrice[0].close).toFixed(2)}`
-                                :
-                                (latestStockPrice[0])}}</div>
-                            <i class="fa-solid fa-square-caret-up latest-price-indicator"
-                                v-if="latestPriceIndicator == 1"></i>
-                            <i class="fa-solid fa-square-caret-down latest-price-indicator"
-                                v-else-if="latestPriceIndicator == -1"></i>
-                        </div>
-                        <div>{{ latestPricePercentageDiff }}%</div>
-                    </div>
-                    <div class="divider"></div>
-                    <div class="symbol">
-                        <div><span class="me-1">Closing Price:</span> {{ latestStockPrice.length > 1 &&
-                            formatDate(latestStockPrice[0].datetime) }}</div>
-                    </div>
+                <div class="divider"></div>
+                <div class="d-flex justify-content-start gap-1 align-items-center symbol">
+                    <div>{{ stockInfo[0].symbol }}</div> &#x2022;
+                    <div>{{ stockInfo[0].exchange }}</div> &#x2022;
+                    <div>{{ stockInfo[0].country }}</div>
+                </div>
+                <div class="industry mt-3" :key="companyDetails.name">
+                    {{ companyDetails.industry }}
                 </div>
             </div>
 
-            <div class="company-title-wrapper desc" :key="companyDetails.name">
+            <!-- Latest price -->
+            <div class="company-title-wrapper company-latest-price-wrapper name">
+                <div class="d-flex justify-content-start align-items-baseline gap-3"
+                    :class="latestPriceIndicator == 1 ? 'success' : 'danger'">
+                    <div class="d-flex justify-content-start align-items-center gap-3">
+                        <div class="title latest-price" :class="latestPriceIndicator == 1 ? 'success' : 'danger'">
+                            {{ latestStockPrice.length > 1 ? `₹ ${parseFloat(latestStockPrice[0].close).toFixed(2)}`
+                                :
+                                (latestStockPrice[0]) }}</div>
+                        <i class="fa-solid fa-square-caret-up latest-price-indicator"
+                            v-if="latestPriceIndicator == 1"></i>
+                        <i class="fa-solid fa-square-caret-down latest-price-indicator"
+                            v-else-if="latestPriceIndicator == -1"></i>
+                    </div>
+                    <div>{{ `${latestPriceIndicator > 0 ? '+' : '-'} ${latestPricePercentageDiff}` }}%</div>
+                </div>
+                <div class="divider"></div>
+                <div class="symbol">
+                    <div><span class="me-1">Closing Price:</span> {{ latestStockPrice.length > 1 &&
+                        formatDate(latestStockPrice[0].datetime) }}</div>
+                </div>
+            </div>
+
+            <!-- Company description and peers -->
+            <div class="company-title-wrapper company-desc-wrapper desc" :key="companyDetails.name">
                 <div class="symbol">
                     {{ companyDetails.description }}
                 </div>
@@ -185,7 +186,8 @@
                 </div>
 
                 <div>
-                    <div v-if="SMALoading || timeSeriesLoading" class="d-flex justify-content-center align-items-center w-100">
+                    <div v-if="SMALoading || timeSeriesLoading"
+                        class="d-flex justify-content-center align-items-center w-100">
                         <loader />
                     </div>
                     <div v-else>
@@ -245,9 +247,9 @@ export default {
             return this.smaData[this.smaInterval]
         },
         latestStockPrice() {
-            if(this.timeSeries['Daily']['error']) {
+            if (this.timeSeries['Daily']['error']) {
                 return ["Error"]
-            }else if (Object.keys(this.timeSeries['Daily']).length > 0)
+            } else if (Object.keys(this.timeSeries['Daily']).length > 0)
                 return [this.timeSeries['Daily']['values'][0], this.timeSeries['Daily']['values'][1]]
             else return ['Loading']
         },
@@ -478,7 +480,7 @@ export default {
 }
 
 .latest-price-indicator {
-    font-size: 24px;
+    font-size: 32px;
 }
 
 .visit-site-link {
@@ -493,11 +495,20 @@ export default {
 }
 
 .company-details-wrapper {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    align-items: start;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
     gap: 20px;
+    width: 100%;
+
+    .company-name-wrapper, .company-latest-price-wrapper {
+        grid-column: span 1;
+        grid-row: span 1;
+    }
+    .company-desc-wrapper {
+        grid-column: span 2;
+        // grid-row;
+    }
+
 }
 
 .chart-options {
@@ -514,6 +525,7 @@ export default {
     padding-inline: 10px;
     color: #5c667a;
 }
+
 .active {
     color: #315098;
     background: #f3f5f7;
