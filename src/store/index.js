@@ -1,10 +1,10 @@
 import { createStore } from 'vuex'
 import axios from 'axios'
 
-export default createStore({
-  state: {
-    stockList: null,
-    symbol: null,
+const getDefaultState = () => {
+  return {
+    stockList: {},
+    symbol: '',
     companyDetails: {},
     timeSeries: {
       Loading: false,
@@ -26,14 +26,14 @@ export default createStore({
       Weekly: {},
       Monthly: {}
     },
-  },
+  }
+}
+
+export default createStore({
+  state: getDefaultState(),
   getters: {
     stockList: (state) => {
-      if (state.stockList.error) {
-        return state.stockList
-      } else {
-        return state.stockList['data']
-      }
+      return state.stockList
     },
     companyDetails(state) {
       return state.companyDetails
@@ -101,6 +101,9 @@ export default createStore({
     }
   },
   mutations: {
+    resetState(state) {
+      Object.assign(state, getDefaultState());
+    },
     MutateStocksList(state, payload) {
       state.stockList = payload
     },
@@ -128,7 +131,6 @@ export default createStore({
       this.commit('MutateLoaderState', 'SMAData')
     },
     MutateTimeSeriesData(state, payload) {
-      console.log("mutating time series for..." + payload.interval)
       state.timeSeries[payload.interval] = payload
       this.commit('MutateLoaderState', 'timeSeries')
     },
@@ -167,7 +169,7 @@ export default createStore({
         const timeSeriesEndpoint = `${process.env.VUE_APP_API_URL}/stocks/timeseries?symbol=${payload.symbol}&interval=${payload.interval}`;
         const resp = await axios.get(timeSeriesEndpoint);
         if (resp.status === 200) {
-          context.commit('MutateTimeSeriesData', {...resp.data, interval: payload.interval})
+          context.commit('MutateTimeSeriesData', { ...resp.data, interval: payload.interval })
         } else {
           context.commit('MutateTimeSeriesData', { error: true, message: resp.data, interval: payload.interval })
         }
@@ -177,14 +179,14 @@ export default createStore({
       }
     },
     async FetchTechnicalData(context, payload) {
-      console.log(`Hitting API for ${payload.function}`);
       context.commit('MutateLoaderState', `${payload.function}Data`)
       try {
         const TechnicalDataEndpoint = `${process.env.VUE_APP_API_URL}/stocks/get${payload.function}Data?symbol=${payload.symbol}&timePeriod=${payload.timePeriod}&interval=${payload.interval}&seriesType=${payload.seriesType}`;
+        payload.function == 'SMA' && await new Promise(resolve => setTimeout(resolve, 1000));
         const resp = await axios.get(TechnicalDataEndpoint);
         const data = resp.data;
         if (resp.status === 200) {
-          context.commit(`Mutate${payload.function}Data`, {...data, interval: payload.interval});
+          context.commit(`Mutate${payload.function}Data`, { ...data, interval: payload.interval });
         } else {
           context.commit(`Mutate${payload.function}Data`, { error: true, message: resp.data, interval: payload.interval });
         }

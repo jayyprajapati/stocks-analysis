@@ -5,3 +5,12 @@ body, html {
     background: #fefcfb;
     font-family: "Lexend", sans-serif;
 }
+
+a {
+    text-decoration: none !important;
+    color: unset !important;
+    display: unset;
+    :visited {
+        color: unset !important;
+    }
+}

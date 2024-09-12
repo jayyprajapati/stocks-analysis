@@ -64,7 +64,9 @@ export default {
 }
 
 .line-chart-wrapper {
-
+    @media only screen and (max-width: 560px) {
+        padding: 0 !important;
+    }
     .title {
         text-align: left;
         font-weight: 600;

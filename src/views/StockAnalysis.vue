@@ -1,6 +1,9 @@
 <template>
     <div class="container mb-4">
-        <div v-if="stockInfo.error || companyDetails.error">
+        <button class="mb-3" @click="goToHome"><i class="fa-solid fa-house me-1"></i>Home</button>
+        <p class="subtitle"><sup>*</sup> The data presented in this application is sourced from publicly available free-tier APIs, and as such, its accuracy and reliability cannot be guaranteed. This project was developed purely for learning purposes.</p>
+        <div v-if="stockInfo.error || localCompanyDetails.error"
+            class="d-flex justify-content-center align-items-center my-5">
             Oops...something went wrong!!
         </div>
         <div class="company-details-wrapper" v-else>
@@ -8,7 +11,8 @@
             <div class="company-title-wrapper company-name-wrapper name">
                 <div class="d-flex justify-content-start align-items-center gap-3">
                     <div class="title">{{ stockInfo[0].name }}</div>
-                    <i class="fa-solid fa-arrow-right visit-site-link"></i>
+                    <a :href="localCompanyDetails.siteUrl" :key="localCompanyDetails.siteUrl"><i
+                            class="fa-solid fa-arrow-right visit-site-link"></i></a>
                 </div>
                 <div class="divider"></div>
                 <div class="d-flex justify-content-start gap-1 align-items-center symbol">
@@ -16,8 +20,8 @@
                     <div>{{ stockInfo[0].exchange }}</div> &#x2022;
                     <div>{{ stockInfo[0].country }}</div>
                 </div>
-                <div class="industry mt-3" :key="companyDetails.name">
-                    {{ companyDetails.industry }}
+                <div class="industry mt-3" :key="companyDetails.industry">
+                    {{ localCompanyDetails.industry }}
                 </div>
             </div>
 
@@ -35,7 +39,7 @@
                         <i class="fa-solid fa-square-caret-down latest-price-indicator"
                             v-else-if="latestPriceIndicator == -1"></i>
                     </div>
-                    <div>{{ `${latestPriceIndicator > 0 ? '+' : '-'} ${latestPricePercentageDiff}` }}%</div>
+                    <div>{{ `${latestPriceIndicator > 0 ? '+' : ''} ${latestPricePercentageDiff}` }}%</div>
                 </div>
                 <div class="divider"></div>
                 <div class="symbol">
@@ -45,28 +49,33 @@
             </div>
 
             <!-- Company description and peers -->
-            <div class="company-title-wrapper company-desc-wrapper desc" :key="companyDetails.name">
+            <div class="company-title-wrapper company-desc-wrapper desc" :key="localCompanyDetails.description">
                 <div class="symbol">
-                    {{ companyDetails.description }}
+                    {{ localCompanyDetails.description }}
                 </div>
 
                 <div class="divider"></div>
 
                 Peers:
                 <div class="d-flex justify-content-start align-item-center gap-2">
-                    <div class="industry mt-3" v-for="peer of companyDetails.peers" :key="peer">
+                    <div class="industry mt-3" v-for="peer of localCompanyDetails.peers" :key="peer">
                         {{ peer }}
                     </div>
                 </div>
             </div>
         </div>
 
+        <div class="w-100 section-title my-2">
+            TimeSeries Chart
+        </div>
+
         <div class="timeseries-wrapper">
-            <div class="d-flex justify-content-between align-items-center">
+            <div class="d-flex justify-content-between align-items-center flex-column gap-2 flex-md-row">
                 <div class="chart-options d-flex justify-content-center align-items-center gap-4">
                     <div class="option" :class="{ 'active': activeTimeSeriesChart == 'Candlestick' }"
-                        @click="toggleChartView">Candlestick</div>
-                    <div class="option" :class="{ 'active': activeTimeSeriesChart == 'Line' }" @click="toggleChartView">
+                        @click="toggleChartView('Candlestick')">Candlestick</div>
+                    <div class="option" :class="{ 'active': activeTimeSeriesChart == 'Line' }"
+                        @click="toggleChartView('Line')">
                         Line
                     </div>
                 </div>
@@ -87,7 +96,8 @@
                     <loader />
                 </div>
                 <div v-else>
-                    <div v-if="localTimeSeriesData?.error">
+                    <div v-if="localTimeSeriesData?.error"
+                        class="d-flex justify-content-center align-items-center my-5">
                         OOPS...SOMETHING WENT WRONG
                     </div>
                     <div v-else>
@@ -103,8 +113,12 @@
             </div>
         </div>
 
+        <div class="w-100 section-title my-2">
+            Technical Indicators
+        </div>
+
         <!-- Technical Analysis -->
-        <div class="d-flex justify-content-between gap-3 align-items-center">
+        <div class="technical-indicators">
             <!-- RSI Chart -->
             <div class="rsi-wrapper w-100">
                 <div class="title">
@@ -126,16 +140,16 @@
                     </div>
                 </div>
 
-                <div class="mt-3 d-flex justify-content-between gap-4 align-items-center rsi-details">
+                <div class="mt-3 d-flex flex-column flex-md-row justify-content-between gap-4 align-items-center rsi-details">
                     <div class="d-flex gap-3">
                         <div>Time Period: 14 <i class="ms-1 fa-solid fa-lock"></i></div>
                         <div>Series Type: Open <i class="ms-1 fa-solid fa-lock"></i></div>
                     </div>
                     <div class="d-flex gap-3">
-                        <input type="number" v-model="rsiMin" class="rsi-input" placeholder="RSI Min" name="rsiMin"
-                            id="rsiMin">
-                        <input type="number" v-model="rsiMax" class="rsi-input" placeholder="RSI Max" name="rsiMax"
-                            id="rsiMax">
+                        <input type="number" v-model="rsiMin" class="rsi-input" step="5" placeholder="RSI Min"
+                            name="rsiMin" id="rsiMin">
+                        <input type="number" v-model="rsiMax" class="rsi-input" step="5" placeholder="RSI Max"
+                            name="rsiMax" id="rsiMax">
                     </div>
                 </div>
 
@@ -144,7 +158,7 @@
                         <loader />
                     </div>
                     <div v-else>
-                        <div v-if="localRSIData?.error">
+                        <div v-if="localRSIData?.error" class="d-flex justify-content-center align-items-center my-5">
                             OOPS...SOMETHING WENT WRONG
                         </div>
                         <div v-else>
@@ -191,7 +205,8 @@
                         <loader />
                     </div>
                     <div v-else>
-                        <div v-if="localSMAData?.error || timeSeries[smaInterval]?.error">
+                        <div v-if="localSMAData?.error || timeSeries[smaInterval]?.error"
+                            class="d-flex justify-content-center align-items-center my-5">
                             OOPS...SOMETHING WENT WRONG
                         </div>
                         <div v-else>
@@ -225,7 +240,8 @@ export default {
             rsiInterval: "Daily",
             smaInterval: 'Daily',
             rsiMin: 40,
-            rsiMax: 60
+            rsiMax: 60,
+            localCompanyDetails: {},
         }
     },
     components: {
@@ -277,13 +293,23 @@ export default {
             }
         }
     },
+    watch: {
+        companyDetails: [{
+            handler: 'setLocalCompanyData',
+            deep: true
+        }]
+    },
     methods: {
-        toggleChartView() {
-            if (this.activeTimeSeriesChart == 'Candlestick') {
-                this.activeTimeSeriesChart = 'Line'
-            } else {
-                this.activeTimeSeriesChart = 'Candlestick'
+        toggleChartView(view) {
+            this.activeTimeSeriesChart = view
+        },
+        setLocalCompanyData(value) {
+            if(value) {
+                this.localCompanyDetails = value
             }
+        },
+        goToHome() {
+            this.$router.push({name: 'home'})
         },
         formatDate(dateString) {
             const date = new Date(dateString);
@@ -368,6 +394,16 @@ export default {
 </script>
 
 <style scoped lang="scss">
+.section-title {
+    background: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    color: #315098;
+    font-size: 24px;
+    font-weight: 600;
+    box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
+}
+
 .divider {
     margin-block: 10px;
     height: 1px;
@@ -377,10 +413,10 @@ export default {
 }
 
 .rsi-wrapper {
-    margin-top: 10px;
+    // margin-top: 10px;
     background: #fff;
-    box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
-    border-radius: 20px;
+    box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
+    border-radius: 10px;
     padding: 20px;
     width: 50%;
 
@@ -410,8 +446,8 @@ export default {
 .timeseries-wrapper {
     margin-top: 10px;
     background: #fff;
-    box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
-    border-radius: 20px;
+    box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
+    border-radius: 10px;
     padding: 20px;
 }
 
@@ -442,9 +478,16 @@ export default {
     }
 }
 
+button {
+    padding: 5px;
+    background: #315098;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+}
 .company-title-wrapper {
     background: #fff;
-    border-radius: 20px;
+    border-radius: 10px;
     box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
     min-width: 30%;
     padding: 20px;
@@ -453,7 +496,7 @@ export default {
 
     .title {
         font-size: 20px;
-        color: #111a2c;
+        color: #315098;
         font-weight: 600;
         line-height: 20px;
     }
@@ -471,12 +514,33 @@ export default {
         border-radius: 100px;
         width: fit-content;
         font-size: 12px;
+
+        @media only screen and (max-width: 560px) {
+            border-radius: 5px;
+            padding: 3px 5px;
+        }
     }
 }
 
 .latest-price {
     font-size: 42px !important;
     line-height: unset !important;
+}
+
+.technical-indicators {
+    display: grid;
+    gap: 10px;
+    grid-template-columns: repeat(2, 1fr);
+    width: 100%;
+
+    .rsi-wrapper {
+        grid-column: span 1;
+        grid-row: span 1;
+
+        @media only screen and (max-width: 560px) {
+            grid-column: span 2;
+        }
+    }
 }
 
 .latest-price-indicator {
@@ -500,10 +564,16 @@ export default {
     gap: 20px;
     width: 100%;
 
-    .company-name-wrapper, .company-latest-price-wrapper {
+    .company-name-wrapper,
+    .company-latest-price-wrapper {
         grid-column: span 1;
         grid-row: span 1;
+
+        @media only screen and (max-width: 560px) {
+            grid-column: span 2;
+        }
     }
+
     .company-desc-wrapper {
         grid-column: span 2;
         // grid-row;
@@ -531,5 +601,10 @@ export default {
     background: #f3f5f7;
     border-radius: 6px;
     font-weight: 600;
+}
+
+.subtitle {
+    font-size: 12px;
+    color: #5c667a;
 }
 </style>
