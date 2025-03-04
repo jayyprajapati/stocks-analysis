@@ -153,7 +153,7 @@ export default createStore({
       }
     },
     async FetchCompanyDetails(context, payload) {
-      const companyDetailsEndpoint = process.env.VUE_APP_API_URL + `/stocks/companyDetails?symbol=${payload}`;
+      const companyDetailsEndpoint = process.env.VUE_APP_API_URL + `/api/stocks/companyDetails?symbol=${payload}`;
 
       const resp = await axios.get(companyDetailsEndpoint);
       const data = resp.data;
@@ -166,7 +166,7 @@ export default createStore({
     async FetchTimeSeries(context, payload) {
       try {
         context.commit('MutateLoaderState', 'timeSeries')
-        const timeSeriesEndpoint = `${process.env.VUE_APP_API_URL}/stocks/timeseries?symbol=${payload.symbol}&interval=${payload.interval}`;
+        const timeSeriesEndpoint = `${process.env.VUE_APP_API_URL}/api/stocks/timeseries?symbol=${payload.symbol}&interval=${payload.interval}`;
         const resp = await axios.get(timeSeriesEndpoint);
         if (resp.status === 200) {
           context.commit('MutateTimeSeriesData', { ...resp.data, interval: payload.interval })
@@ -181,7 +181,7 @@ export default createStore({
     async FetchTechnicalData(context, payload) {
       context.commit('MutateLoaderState', `${payload.function}Data`)
       try {
-        const TechnicalDataEndpoint = `${process.env.VUE_APP_API_URL}/stocks/get${payload.function}Data?symbol=${payload.symbol}&timePeriod=${payload.timePeriod}&interval=${payload.interval}&seriesType=${payload.seriesType}`;
+        const TechnicalDataEndpoint = `${process.env.VUE_APP_API_URL}/api/stocks/get${payload.function}Data?symbol=${payload.symbol}&timePeriod=${payload.timePeriod}&interval=${payload.interval}&seriesType=${payload.seriesType}`;
         payload.function == 'SMA' && await new Promise(resolve => setTimeout(resolve, 1000));
         const resp = await axios.get(TechnicalDataEndpoint);
         const data = resp.data;
